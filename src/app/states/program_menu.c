@@ -1,6 +1,8 @@
 #include "program_menu.h"
 #include <stdlib.h>
 #include "button.h"
+#include "game.h"
+#include "input_manager.h"
 #include "log.h"
 #include "program.h"
 #include "raylib/raylib.h"
@@ -28,7 +30,20 @@ void program_menu_update(void) {
                     break;
                 case 1:
                     /* Local game*/
-                    PERROR("TODO: Local game\n");
+                    if (input_manager_init()) {
+                        PERROR("Failed to initialise input manager\n");
+                        break;
+                    }
+                    /*
+                    if (game_init()) {
+                        PERROR("Failed to initialise game\n");
+                        break;
+                    }
+                    */
+                    if (program_change_state(PS_GAMING)) {
+                        input_manager_deinit();
+                        PERROR("Failed to change to gaming state\n");
+                    }
                     break;
                 case 2: quit = 1; break;
             }

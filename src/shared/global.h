@@ -5,4 +5,4 @@
 #define MAX_PLAYERS  32
 #define MAX_ROLLBACK 64
 
-#endif
+#endif /* GLOBAL_H */
