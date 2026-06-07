@@ -266,7 +266,7 @@ void game_state_render(GameState *gs) {
     scale_x = w_screen_w / (float)WORLD_W;
     scale_y = w_screen_h / (float)WORLD_H;
 
-    ClearBackground(GRAY);
+    ClearBackground(DARKGRAY);
 
     DrawRectangle((int)offset_x, (int)offset_y, (int)w_screen_w, (int)w_screen_h, BLACK);
 

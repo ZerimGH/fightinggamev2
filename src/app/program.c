@@ -1,15 +1,21 @@
 #include "program.h"
 #include <stdlib.h>
+#include "client.h"
 #include "log.h"
 #include "program_gaming.h"
 #include "program_lan_menu.h"
 #include "program_menu.h"
+#include "program_server_menu.h"
+#include "program_waiting.h"
 #include "raylib/raylib.h"
+#include "server.h"
 
 #define DO_MAGIC                                                                                                       \
     X(PS_MENU, program_menu)                                                                                           \
     X(PS_LAN_MENU, program_lan_menu)                                                                                   \
-    X(PS_GAMING, program_gaming)
+    X(PS_GAMING, program_gaming)                                                                                       \
+    X(PS_WAITING, program_waiting)                                                                                     \
+    X(PS_SERVER_MENU, program_server_menu)
 
 static ProgramState state = -1;
 
@@ -26,7 +32,7 @@ int program_init(void) {
 static int state_enter(ProgramState new_state) {
     if (new_state != PS_GAMING) SetTargetFPS(30);
     else
-        SetTargetFPS(0);
+        SetTargetFPS(120); /* Should be fine ? */
     switch (new_state) {
 #define X(TYPE, PREFIX)                                                                                                \
     case (TYPE):                                                                                                       \
@@ -71,10 +77,6 @@ void program_update(void) {
 #undef X
         default: PERROR("Unhandled state %d\n", state); return;
     }
-
-    if (state != PS_GAMING && IsKeyPressed(KEY_ESCAPE)) {
-        program_change_state(PS_MENU);
-    }
 }
 
 void program_render(void) {
@@ -90,6 +92,8 @@ void program_render(void) {
 void program_deinit(void) {
     state_exit();
     state = (ProgramState)-1;
+    if (client_is_init()) client_deinit();
+    if (server_is_init()) server_deinit();
 }
 
 ProgramState program_get_state(void) {

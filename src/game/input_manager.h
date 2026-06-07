@@ -4,12 +4,14 @@
 #include <stdint.h>
 #include "input.h"
 
+typedef enum { IM_LOCAL, IM_LAN } InputManagerType;
+
 /* Initialise the input manager */
-int input_manager_init(void); /* Will take client as an argument when I do network code */
+int input_manager_init(InputManagerType type); /* Will take client as an argument when I do network code */
 /* Deinitialise the input manager */
 void input_manager_deinit(void);
 /* Return if the input manager has been initialised */
-int input_manager_ready(void);
+int input_manager_is_init(void);
 /* Return the number of players whos inputs will be stored */
 uint8_t input_manager_num_players(void);
 /* Get new inputs for a specific player, returns 1 if no new inputs */

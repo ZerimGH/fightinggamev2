@@ -3,7 +3,7 @@
 #define BUTTON_H
 
 typedef struct {
-    char text[16];
+    char text[32];
     int active;
 } Button;
 

@@ -30,16 +30,10 @@ void program_menu_update(void) {
                     break;
                 case 1:
                     /* Local game*/
-                    if (input_manager_init()) {
+                    if (input_manager_init(IM_LOCAL)) {
                         PERROR("Failed to initialise input manager\n");
                         break;
                     }
-                    /*
-                    if (game_init()) {
-                        PERROR("Failed to initialise game\n");
-                        break;
-                    }
-                    */
                     if (program_change_state(PS_GAMING)) {
                         input_manager_deinit();
                         PERROR("Failed to change to gaming state\n");

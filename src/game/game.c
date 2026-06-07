@@ -40,7 +40,7 @@ int game_init(void) {
         return 1;
     }
 
-    if (!input_manager_ready()) {
+    if (!input_manager_is_init()) {
         PERROR("init() called before input manager initialised\n");
         return 1;
     }

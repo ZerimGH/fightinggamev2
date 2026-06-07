@@ -3,9 +3,11 @@
 #define PROGRAM_H
 
 typedef enum {
-    PS_MENU,
-    PS_LAN_MENU,
-    PS_GAMING,
+    PS_MENU,        /* Main menu */
+    PS_LAN_MENU,    /* LAN menu */
+    PS_WAITING,     /* Waiting for a LAN game to start */
+    PS_SERVER_MENU, /* Display a list of LAN servers to join */
+    PS_GAMING,      /* In a game */
 } ProgramState;
 
 int program_init(void);

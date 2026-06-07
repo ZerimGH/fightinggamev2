@@ -11,7 +11,7 @@ static double start_time = 0.0;
 static double next_time = 0.0;
 
 int program_gaming_enter(void) {
-    if (!input_manager_ready()) {
+    if (!input_manager_is_init()) {
         PERROR("Input manager not yet initialised\n");
         return 1;
     }
@@ -29,7 +29,7 @@ int program_gaming_enter(void) {
 
 void program_gaming_exit(void) {
     game_deinit();
-    input_manager_deinit();
+    input_manager_deinit(); /* Will deinit client if LAN game */
 }
 
 void program_gaming_update(void) {

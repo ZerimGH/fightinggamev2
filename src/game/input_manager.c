@@ -6,8 +6,6 @@
 #include "log.h"
 #include "raylib/raylib.h"
 
-typedef enum { IM_LOCAL } InputManagerType;
-
 typedef struct {
     /* Circular buffer of recent inputs */
     size_t head;
@@ -28,7 +26,7 @@ typedef struct {
 static InputManager im = {0};
 static int init = 0;
 
-int input_manager_ready(void) {
+int input_manager_is_init(void) {
     return init;
 }
 
@@ -37,15 +35,18 @@ uint8_t input_manager_num_players(void) {
     return im.num_players;
 }
 
-int input_manager_init(void) {
+int input_manager_init(InputManagerType type) {
     if (init) {
         PERROR("Input manager already initialised\n");
         return 1;
     }
 
-    /* Hard code values for now */
-    im.type = IM_LOCAL;
-    im.num_players = 2;
+    switch (type) {
+        case IM_LOCAL: im.num_players = 2; break;
+        case IM_LAN: PERROR("TODO: LAN\n"); return 1;
+    }
+    im.type = type;
+
     /* Initialise player input buffers */
     for (uint8_t i = 0; i < im.num_players; i++) {
         im.players[i].head = 0;
