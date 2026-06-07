@@ -2,7 +2,6 @@
 #include "discovery.h"
 #include "enet/enet.h"
 #include "log.h"
-#include "packet.h"
 #include "server.h"
 #include "server_info.h"
 #include "server_private.h"
@@ -69,24 +68,21 @@ static void handle_connect(ENetEvent event) {
         return;
     }
     ClientInfo *client = &server.clients[server.num_clients++];
-    client->connected = 1;
     client->peer = event.peer;
     client->peer->data = (void *)client;
 }
 
 static void handle_disconnect(ENetEvent event) {
-    /* Find disconnected client */
+    /* Find disconnected client in client list */
     for (int i = 0; i < server.num_clients; i++) {
         ClientInfo *client = &server.clients[i];
-        if (!client->connected) continue;
+        if (!client->peer) continue;
         if (client->peer == event.peer) {
             /* Move all other clients to ensure player ids stay
              * in order */
-            client->connected = 0;
             client->peer = NULL;
             /* This sucks, oh well */
             for (int j = i + 1; j < server.num_clients; j++) {
-                server.clients[j - 1].connected = server.clients[j].connected;
                 server.clients[j - 1].peer = server.clients[j].peer;
                 server.clients[j - 1].peer->data = (void *)&server.clients[j - 1];
             }

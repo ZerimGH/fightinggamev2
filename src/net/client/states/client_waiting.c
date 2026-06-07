@@ -2,6 +2,7 @@
 #include "client.h"
 #include "client_private.h"
 #include "log.h"
+#include "packet.h"
 
 #define CONNECTION_WAIT_MS 1000
 
@@ -44,6 +45,23 @@ void client_waiting_update(void) {
                     client.peer = NULL;
                     client_change_state((ClientState)-1);
                     return;
+                case ENET_EVENT_TYPE_RECEIVE:
+                    Packet packet = packet_parse(event.packet);
+                    if (packet.type == PACKET_SERVER_START) {
+                        client.num_players = packet.u.server_start.num_players;
+                        client.player_id = packet.u.server_start.id;
+                        if (client_change_state(CS_GAMING)) {
+                            PERROR("Failed to enter gaming state\n");
+                            client_disconnect();
+                            client_change_state((ClientState)-1);
+                            return;
+                        }
+                        return;
+                    } else {
+                        enet_packet_destroy(event.packet);
+                        break;
+                    }
+                default: break;
             }
         }
     }

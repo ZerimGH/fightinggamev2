@@ -2,6 +2,7 @@
 #include "client_discovering.h"
 #include "client_private.h"
 #include "client_waiting.h"
+#include "client_gaming.h"
 #include "enet/enet.h"
 #include "log.h"
 
@@ -95,6 +96,7 @@ void client_update(void) {
     switch (state) {
         case CS_DISCOVERING: client_discovering_update(); break;
         case CS_WAITING: client_waiting_update(); break;
+        case CS_GAMING: client_gaming_update(); break;
     }
     enet_host_flush(client.host);
 }
@@ -109,7 +111,7 @@ void client_disconnect(void) {
 }
 
 int client_started(void) {
-    return 0;
+    return state == CS_GAMING;
 }
 
 /* State machine stuff */
@@ -117,6 +119,7 @@ static void client_state_exit(void) {
     switch (state) {
         case CS_DISCOVERING: client_discovering_exit(); return;
         case CS_WAITING: client_waiting_exit(); return;
+        case CS_GAMING: client_gaming_exit(); return;
     }
 }
 
@@ -125,6 +128,7 @@ static int client_state_enter(ClientState new) {
     switch (new) {
         case CS_DISCOVERING: stat = client_discovering_enter(); break;
         case CS_WAITING: stat = client_waiting_enter(); break;
+        case CS_GAMING: stat = client_gaming_enter(); break;
     }
     if (stat) {
         state = (ClientState)-1; /* Not sure how to handle this */
@@ -138,3 +142,24 @@ int client_change_state(ClientState new) {
     client_state_exit();
     return client_state_enter(new);
 }
+
+int client_get_input(uint8_t player_id, uint64_t frame, Input *input) {
+    if (state != CS_GAMING) return 1;
+    return client_gaming_get_input(player_id, frame, input);
+}
+
+int client_send_input(TimedInput input) {
+    if (state != CS_GAMING) return 1;
+    return client_gaming_send_input(input);
+}
+
+int client_is_connected(uint8_t player_id) {
+    if (state != CS_GAMING) return 0;
+    return client_gaming_is_connected(player_id);
+}
+
+uint8_t client_get_num_players(void) {
+    if (state != CS_GAMING) return 0;
+    return client_gaming_get_num_players();
+}
+

@@ -8,6 +8,7 @@
 #define SERVER_MAIN
 #include "server_private.h"
 #include "server_waiting.h"
+#include "server_gaming.h"
 
 Server server = {0};
 static ServerState state = (ServerState)-1;
@@ -49,7 +50,7 @@ int server_init(char *name, uint8_t max_players) {
     /* Initialise client list */
     server.num_clients = 0;
     for (int i = 0; i < MAX_PLAYERS; i++) {
-        server.clients[i] = (ClientInfo){.connected = 0, .player_id = (uint8_t)i, .peer = NULL};
+        server.clients[i] = (ClientInfo){.player_id = (uint8_t)i, .peer = NULL, .latest_input = (uint64_t)-1};
     }
 
     /* Copy server options */
@@ -78,7 +79,7 @@ void server_deinit(void) {
         if (server.num_clients) {
             for (int i = 0; i < server.num_clients; i++) {
                 ClientInfo *client = &server.clients[i];
-                if (!client->connected) continue;
+                if (!client->peer) continue;
                 enet_peer_disconnect_now(client->peer, 0);
             }
         }
@@ -101,7 +102,7 @@ void server_update(void) {
 
     switch (state) {
         case SS_WAITING: server_waiting_update(); break;
-        case SS_GAMING: PERROR("TODO: Gaming update\n"); return;
+        case SS_GAMING: server_gaming_update(); return;
         default: return;
     }
 
@@ -135,7 +136,7 @@ ServerInfo server_get_info(void) {
 static void server_state_exit(void) {
     switch (state) {
         case SS_WAITING: server_waiting_exit(); return;
-        case SS_GAMING: PERROR("TODO: Gaming exit\n"); return;
+        case SS_GAMING: server_gaming_exit(); return;
     }
 }
 
@@ -143,7 +144,7 @@ static int server_state_enter(ServerState new) {
     int stat = 1;
     switch (new) {
         case SS_WAITING: stat = server_waiting_enter(); break;
-        case SS_GAMING: PERROR("TODO: Gaming enter\n"); break;
+        case SS_GAMING: stat = server_gaming_enter(); break;
     }
     if (stat) {
         state = (ServerState)-1; /* Not sure how to handle this */
@@ -156,4 +157,9 @@ static int server_state_enter(ServerState new) {
 int server_change_state(ServerState new) {
     server_state_exit();
     return server_state_enter(new);
+}
+
+uint8_t server_count_clients(void) {
+    if (state != SS_GAMING) return server.num_clients;
+    return server_gaming_count_clients();
 }

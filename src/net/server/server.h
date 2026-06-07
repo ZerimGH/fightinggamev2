@@ -16,5 +16,7 @@ void server_update(void);
 int server_stopped(void);
 /* Get the server's information */
 ServerInfo server_get_info(void);
+/* Count the number of connected clients */
+uint8_t server_count_clients(void);
 
 #endif /* SERVER_H */

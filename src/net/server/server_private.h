@@ -12,9 +12,11 @@ typedef enum {
 } ServerState;
 
 typedef struct {
-    int connected;
     uint8_t player_id;
     ENetPeer *peer;
+
+    uint64_t latest_input; /* Stores the last frame an input 
+                              was received from client */
 } ClientInfo;
 
 typedef struct {

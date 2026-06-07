@@ -29,6 +29,7 @@ void program_waiting_update(void) {
     }
 
     if (client_started()) {
+        PINFO("STARTED\n");
         if (input_manager_init(IM_LAN)) {
             PERROR("Failed to initialise input manager\n");
             client_deinit();

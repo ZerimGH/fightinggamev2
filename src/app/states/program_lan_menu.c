@@ -24,7 +24,7 @@ void program_lan_menu_update(void) {
                 case 0:
                     /* Host a game */
                     /* Create a server for the game */
-                    if (server_init("test", 3)) {
+                    if (server_init("test", 2)) {
                         PERROR("Failed to initialise server\n");
                         return;
                     }

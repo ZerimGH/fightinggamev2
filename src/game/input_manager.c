@@ -5,6 +5,8 @@
 #include "input.h"
 #include "log.h"
 #include "raylib/raylib.h"
+#include "client.h"
+#include "server.h"
 
 typedef struct {
     /* Circular buffer of recent inputs */
@@ -25,6 +27,7 @@ typedef struct {
 
 static InputManager im = {0};
 static int init = 0;
+static int ok = 0;
 
 int input_manager_is_init(void) {
     return init;
@@ -43,7 +46,14 @@ int input_manager_init(InputManagerType type) {
 
     switch (type) {
         case IM_LOCAL: im.num_players = 2; break;
-        case IM_LAN: PERROR("TODO: LAN\n"); return 1;
+        case IM_LAN:
+                       if (!client_is_init() || !client_started()) {
+                           PERROR("Input manager initialised with type IM_LAN, but client"
+                                   " is not ready\n");
+                           return 1;
+                       }
+                       im.num_players = client_get_num_players();
+                       break;
     }
     im.type = type;
 
@@ -55,6 +65,7 @@ int input_manager_init(InputManagerType type) {
     im.frame = 0;
 
     init = 1;
+    ok = 1;
     return 0;
 }
 
@@ -62,8 +73,12 @@ void input_manager_deinit(void) {
     if (!init) {
         PERROR("(warn) deinit called when not yet initialised\n");
     }
-    /* No clean up to be done yet */
+    if (im.type == IM_LAN) {
+        if (client_is_init()) client_deinit();
+        if (server_is_init()) server_deinit();
+    }
     init = 0;
+    ok = 0;
 }
 
 int input_manager_get_input(uint8_t player_id, Input *input) {
@@ -85,7 +100,7 @@ int input_manager_get_input(uint8_t player_id, Input *input) {
 static int append(uint8_t player_id, TimedInput input) {
     if (player_id >= im.num_players) return 1;
     InputBuf *player = &im.players[player_id];
-    if (input.frame != player->head) return 1; /* Match current head absolute frame */
+    if (input.frame != player->head) return 1; /* Make sure the frame matches the current head*/
     /* TODO: Handle this better, the player should be disconnected
      * and wait for the server to confirm disconnection or smth */
     if (player->head - player->tail >= MAX_ROLLBACK) return 1;       /* Too far behind */
@@ -103,34 +118,92 @@ void input_manager_tick(void) {
     }
 
     switch (im.type) {
-        case IM_LOCAL:
-            /* TODO: Abstract keypresses -> Input */
-            uint64_t frame = im.frame;
-            Input input_a;
-            input_a.raw = 0;
-            input_a.fields.left = IsKeyDown(KEY_A);
-            input_a.fields.right = IsKeyDown(KEY_D);
-            input_a.fields.punch = IsKeyDown(KEY_E);
-            input_a.fields.kick = IsKeyDown(KEY_Q);
+        case IM_LOCAL: {
+                           /* TODO: Abstract keypresses -> Input */
+                           uint64_t frame = im.frame;
+                           Input input_a;
+                           input_a.raw = 0;
+                           input_a.fields.left = IsKeyDown(KEY_A);
+                           input_a.fields.right = IsKeyDown(KEY_D);
+                           input_a.fields.punch = IsKeyDown(KEY_E);
+                           input_a.fields.kick = IsKeyDown(KEY_Q);
 
-            Input input_b;
-            input_b.raw = 0;
-            input_b.fields.left = IsKeyDown(KEY_J);
-            input_b.fields.right = IsKeyDown(KEY_L);
-            input_b.fields.punch = IsKeyDown(KEY_O);
-            input_b.fields.kick = IsKeyDown(KEY_U);
+                           Input input_b;
+                           input_b.raw = 0;
+                           input_b.fields.left = IsKeyDown(KEY_J);
+                           input_b.fields.right = IsKeyDown(KEY_L);
+                           input_b.fields.punch = IsKeyDown(KEY_O);
+                           input_b.fields.kick = IsKeyDown(KEY_U);
 
-            TimedInput ti_a = {frame, input_a};
-            TimedInput ti_b = {frame, input_b};
+                           TimedInput ti_a = {frame, input_a};
+                           TimedInput ti_b = {frame, input_b};
 
-            if (append(0, ti_a) || append(1, ti_b)) {
-                /* Should never fail, good to check ig */
-                PERROR("Failed to append local inputs\n");
-                return;
-            }
+                           if (append(0, ti_a) || append(1, ti_b)) {
+                               /* Should never fail, good to check ig */
+                               PERROR("Failed to append local inputs\n");
+                               ok = 0;
+                               return;
+                           }
 
-            break;
-        default: PERROR("(warn) unhandled input manager type %d\n", im.type); return;
+                           break;
+                       }
+        case IM_LAN: {
+                         /* Update client */
+                         client_update();
+
+                         /* Get local player's inputs */
+                         uint64_t frame = im.frame;
+                         Input input_a;
+                         input_a.raw = 0;
+                         input_a.fields.left = IsKeyDown(KEY_A);
+                         input_a.fields.right = IsKeyDown(KEY_D);
+                         input_a.fields.punch = IsKeyDown(KEY_E);
+                         input_a.fields.kick = IsKeyDown(KEY_Q);
+                         TimedInput ti_a = {frame, input_a};
+                         /* Send to server */
+                         if (client_send_input(ti_a)) {
+                             PERROR("Failed to send local inputs to server\n");
+                             ok = 0;
+                             return;
+                         }
+
+                         /* Update all players' inputs from client */
+                         for (uint8_t i = 0; i < im.num_players; i++) {
+                             if (!client_is_connected(i)) continue;
+                             InputBuf *player = &im.players[i];
+                             /* Check for new inputs */
+                             uint64_t p_frame = player->head;
+                             Input p_input;
+                             while (!client_get_input(i, p_frame, &p_input)) {
+                                 TimedInput p_ti;
+                                 p_ti.frame = p_frame;
+                                 p_ti.input = p_input;
+                                 if (append(i, p_ti)) {
+                                     PERROR("Failed to append inputs from client\n");
+                                     ok = 0;
+                                     break;
+                                 }
+                                 p_frame++;
+                             }
+                         }
+
+                         /* Update server if running here */
+                         if (server_is_init()) {
+                             server_update();
+                             /* Change ok to not ok if player < 2 */
+                             if (server_count_clients() < 2) ok = 0;
+                         }
+                         break;
+                     }
+        default: 
+                     PERROR("Unhandled input manager type %d\n", im.type);
+                     ok = 0;
+                     return;
     }
     im.frame++;
+}
+
+int input_manager_is_ok() {
+    if (!init) return 0;
+    return ok;
 }
