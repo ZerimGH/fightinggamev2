@@ -32,6 +32,7 @@ void program_lan_menu_update(void) {
                     /* Create random 5-char name for server (cba to do input boxes rn) */
                     char name[6];
                     for (int i = 0; i < 5; i++) name[i] = rand_char();
+                    name[5] = '\0';
                     if (server_init(name, 2)) {
                         PERROR("Failed to initialise server\n");
                         return;
