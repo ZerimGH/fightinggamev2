@@ -5,6 +5,7 @@
 #include "program.h"
 #include "raylib/raylib.h"
 #include "server.h"
+#include <stdlib.h>
 
 static Button buttons[] = {{"HOST A GAME", 1}, {"JOIN A GAME", 1}, {"BACK TO MENU", 1}};
 
@@ -17,6 +18,10 @@ int program_lan_menu_enter(void) {
 void program_lan_menu_exit(void) {
 }
 
+static char rand_char(void) {
+    return rand() % ('Z' - 'A') + 1 + 'A';
+}
+
 void program_lan_menu_update(void) {
     for (int i = 0; i < (int)BUTTON_COUNT; i++) {
         if (button_pressed(&buttons[i], i, BUTTON_COUNT)) {
@@ -24,7 +29,10 @@ void program_lan_menu_update(void) {
                 case 0:
                     /* Host a game */
                     /* Create a server for the game */
-                    if (server_init("test", 2)) {
+                    /* Create random 5-char name for server (cba to do input boxes rn) */
+                    char name[6];
+                    for (int i = 0; i < 5; i++) name[i] = rand_char();
+                    if (server_init(name, 2)) {
                         PERROR("Failed to initialise server\n");
                         return;
                     }
