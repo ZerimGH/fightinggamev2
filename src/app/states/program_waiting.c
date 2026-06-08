@@ -5,6 +5,7 @@
 #include "program.h"
 #include "raylib/raylib.h"
 #include "server.h"
+#include "server_info.h"
 
 int program_waiting_enter(void) {
     if (!client_is_init()) return 1;
@@ -62,6 +63,18 @@ void program_waiting_render(void) {
     int font_size = 40;
     int text_width = MeasureText(text, font_size);
     int text_height = font_size;
-
     DrawText(text, cx - (text_width / 2.f), cy - (text_height / 2.f), font_size, WHITE);
+
+    /* Show server information if running here */
+    if (server_is_init()) {
+        ServerInfo info = server_get_info();
+
+        const char *server_text = TextFormat("%s (%d/%d)", 
+                info.name, info.cur_players, info.max_players);
+
+        int server_text_width = MeasureText(server_text, font_size / 3 * 2);
+        float server_cy = cy + (text_height / 2.f) + 20.f;
+        DrawText(server_text, cx - (server_text_width / 2.f), 
+                server_cy, font_size / 3 * 2, LIGHTGRAY);
+    }
 }
