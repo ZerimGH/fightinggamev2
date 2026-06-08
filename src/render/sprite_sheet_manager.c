@@ -37,12 +37,12 @@ static SpriteSheet *ssm_lookup(int idx) {
     return &ssm.sheets[idx];
 }
 
-void ssm_render(int idx, float x, float y, float w, float h, unsigned int frame, int flip) {
+void ssm_render(int idx, float x, float y, float w, float h, unsigned int frame, int flip, Color col) {
     SpriteSheet *ss = ssm_lookup(idx);
     if (!ss) {
         return;
     }
-    sprite_sheet_render(ss, x, y, w, h, frame, flip);
+    sprite_sheet_render(ss, x, y, w, h, frame, flip, col);
 }
 
 void ssm_deinit(void) {

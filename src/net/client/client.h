@@ -34,7 +34,7 @@ int client_get_input(uint8_t player_id, uint64_t frame, Input *input);
 /* Send an input to the server */
 int client_send_input(TimedInput input);
 /* Check if a player is connected */
-int client_is_connected(uint8_t player_id);
+int client_is_connected(uint8_t player_id, uint64_t frame);
 /* Get the player id assigned to the client */
 uint8_t client_get_id(void);
 /* Get the number of players client started with */

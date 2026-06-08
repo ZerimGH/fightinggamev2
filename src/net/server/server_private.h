@@ -5,6 +5,7 @@
 #include "enet/enet.h"
 #include "global.h"
 #include "server_info.h"
+#include "input.h"
 
 typedef enum {
     SS_WAITING, /* Waiting for clients */
@@ -15,8 +16,8 @@ typedef struct {
     uint8_t player_id;
     ENetPeer *peer;
 
-    uint64_t latest_input; /* Stores the last frame an input 
-                              was received from client */
+    TimedInput latest_input;
+    uint64_t predict_to;
 } ClientInfo;
 
 typedef struct {
@@ -25,6 +26,7 @@ typedef struct {
     int num_clients;
     ClientInfo clients[MAX_PLAYERS];
     char name[SERVER_NAME_SIZE];
+    uint64_t max_frame;
 } Server;
 
 #ifndef SERVER_MAIN

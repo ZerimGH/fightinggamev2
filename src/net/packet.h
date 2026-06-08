@@ -26,6 +26,7 @@ typedef struct {
 
 typedef struct {
     uint8_t id;
+    uint64_t frame;
 } __attribute__((packed)) PacketServerDisconnect;
 
 typedef struct {

@@ -29,6 +29,10 @@ static void advance_state(GameState *state, const StateInputs *inputs) {
 
     for (uint8_t i = 0; i < num_players; i++) {
         game_state_apply_input(state, i, inputs->player_inputs[i]);
+
+        if (input_manager_disconnected(i)) {
+            state->players[i].connected = 0;
+        } else state->players[i].connected = 1;
     }
 
     game_state_finalise(state);

@@ -1,3 +1,4 @@
 build
 assets/file2c/file2c
 *.o
+run.sh

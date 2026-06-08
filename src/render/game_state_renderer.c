@@ -3,6 +3,7 @@
 #include "sprite_sheets.h"
 #include "raylib/raylib.h"
 #include "assets.h"
+#include "log.h"
 #include "input_manager.h" /* Feels like this shouldn't be included here
                               Maybe the state should store num_players? */
 
@@ -68,7 +69,8 @@ void game_state_render(GameState *gs) {
             case PSPunch: anim_sheet = player_punch_sprite; break;
         }
 
-        ssm_render(anim_sheet, rx, ry, rw, rh, p->anim_frame, p->facing != 1);
+        Color col = p->connected ? WHITE : (Color) { 150, 150, 150, 128 };
+        ssm_render(anim_sheet, rx, ry, rw, rh, p->anim_frame, p->facing != 1, col);
     }
 }
 

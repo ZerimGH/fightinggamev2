@@ -15,6 +15,7 @@ int client_gaming_enter(void) {
             player->inputs[i].input.raw = 0;
         }
         player->connected = 1;
+        player->disconnect_frame = (uint64_t)-1;
     }
     return 0;
 }
@@ -26,7 +27,7 @@ void client_gaming_exit(void) {
 static void handle_input(uint8_t player_id, TimedInput input) {
     if (player_id >= client.num_players) return;
     PlayerInfo *player = &client.players[player_id];
-    if (!player->connected) {
+    if (!player->connected && input.frame > player->disconnect_frame) {
         PERROR("Client received input for disconnected player %d\n",
                 (int) player_id);
         return;
@@ -44,9 +45,10 @@ static void handle_input(uint8_t player_id, TimedInput input) {
     }
 }
 
-static void disconnect_id(uint8_t player_id) {
+static void disconnect_id(uint8_t player_id, uint64_t frame) {
     if (player_id >= client.num_players) return;
     client.players[player_id].connected = 0;
+    client.players[player_id].disconnect_frame = frame;
 }
 
 static void handle_packet(ENetEvent *event) {
@@ -56,7 +58,8 @@ static void handle_packet(ENetEvent *event) {
             handle_input(packet.u.server_input.id, packet.u.server_input.input);
             break;
         case PACKET_SERVER_DISCONNECT:
-            disconnect_id(packet.u.server_disconnect.id);
+            disconnect_id(packet.u.server_disconnect.id, 
+                    packet.u.server_disconnect.frame);
             break;
         default:
             PERROR("Client received unhandled packet type %d\n",
@@ -86,7 +89,9 @@ void client_gaming_update(void) {
 int client_gaming_get_input(uint8_t player_id, uint64_t frame, Input *input) {
     if (!input || player_id >= client.num_players) return 1;
     PlayerInfo *player = &client.players[player_id];
-    if (!player->connected) return 1;
+    if (!player->connected && frame >= player->disconnect_frame) {
+        return 1;
+    }
     uint64_t idx = frame % MAX_ROLLBACK;
     if (player->inputs[idx].frame != frame) return 1;
 
@@ -112,9 +117,11 @@ int client_gaming_send_input(TimedInput input) {
     return 0;
 }
 
-int client_gaming_is_connected(uint8_t player_id) {
+int client_gaming_is_connected(uint8_t player_id, uint64_t frame) {
     if (player_id >= client.num_players) return 0;
-    return client.players[player_id].connected;
+    PlayerInfo *player = &client.players[player_id];
+    if (player->connected) return 1;
+    return (frame < player->disconnect_frame);
 }
 
 uint8_t client_gaming_get_num_players(void) {

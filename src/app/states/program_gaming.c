@@ -12,7 +12,7 @@ static double start_time = 0.0;
 static double next_time = 0.0;
 
 int program_gaming_enter(void) {
-    if (!input_manager_is_init() || !input_manager_is_ok()) {
+    if (!input_manager_is_init() || input_manager_over()) {
         PERROR("Input manager not ready\n");
         return 1;
     }
@@ -37,8 +37,8 @@ void program_gaming_update(void) {
     double cur_time = GetTime();
     if (cur_time >= next_time) {
         game_tick();
-        if (!input_manager_is_ok()) {
-            PERROR("Input manager not ok, returning to menu\n");
+        if (input_manager_over()) {
+            PERROR("Input manager stopped, returning to menu\n");
             program_change_state(PS_MENU); /* Will deinit everything */
             return;
         }

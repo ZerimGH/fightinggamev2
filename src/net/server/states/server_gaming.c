@@ -13,6 +13,8 @@
 
 #define FPS 60 
 
+#define MAX_PACKETS_PER_UPDATE 128 /* Not sure what kinda size is good for this */
+
 static uint32_t start_time = 0;
 
 int server_gaming_enter(void) {
@@ -69,13 +71,13 @@ static void disconnect_id(uint8_t player_id) {
     enet_peer_disconnect_now(client->peer, 0);
     client->peer = NULL;
 
+    /* Set input prediction values */
+    client->predict_to = server.max_frame;
+
     /* Tell other clients about disconnection */
-    /* TODO: Clients will receive this message at different times,
-     * I think the server should predict the disconnected player's inputs up
-     * to the furthest ahead client's most recent input to ensure 
-     * synchronisation */
     PacketServerDisconnect disconnect_packet;
     disconnect_packet.id = player_id;
+    disconnect_packet.frame = server.max_frame;
     Packet packet = packet_create(PACKET_SERVER_DISCONNECT, &disconnect_packet);
     if (packet.type == PACKET_NULL) {
         PERROR("Failed to create disconnection packet for client %d\n", 
@@ -114,15 +116,15 @@ static void handle_client_input(ClientInfo *client, TimedInput input) {
      * but idk how to handle them right now. */
 
     /* Validate input */
-    if (input.frame != client->latest_input + 1) {
+    if (input.frame != client->latest_input.frame + 1) {
         PINFO("Client %d sent out of order input, "
                 "expected: %llu, sent: %llu, disconnecting\n",
-                (unsigned long long)client->latest_input + 1,
+                (unsigned long long)client->latest_input.frame + 1,
                 (unsigned long long)input.frame);
         /* I guess disconnect the client? */
         disconnect_id(client->player_id);
     }
-    client->latest_input++;
+    client->latest_input = input;
 
     PacketServerInput input_packet;
     input_packet.input = input;
@@ -136,7 +138,7 @@ static void handle_client_input(ClientInfo *client, TimedInput input) {
 
     /* Relay input to other clients */
     for (uint8_t id = 0; id < server.num_clients; id++) {
-        if(id == client->player_id) continue;
+        if (id == client->player_id) continue;
         ClientInfo *other_client = &server.clients[id];
         if (!other_client->peer) continue;
         if (packet_send(packet, other_client->peer)) {
@@ -146,6 +148,9 @@ static void handle_client_input(ClientInfo *client, TimedInput input) {
             continue;
         }
     }
+
+    /* Update max frame for prediction */
+    if (input.frame > server.max_frame) server.max_frame = input.frame;
 }
 
 static void handle_packet(ENetEvent *event) {
@@ -168,17 +173,42 @@ void server_gaming_update() {
     uint32_t game_time = cur_time - start_time;
     uint64_t expected_frame = (uint64_t)((float)game_time / 1000.f * (float)FPS);
     /* Handle packets from clients */
+    /* Handle disconnections seperately before packets */
     ENetEvent event;
+
+    ENetEvent packet_queue[MAX_PACKETS_PER_UPDATE];
+    int packet_count = 0;
+
     while (enet_host_service(server.host, &event, 0) > 0) {
         switch (event.type) {
-            case ENET_EVENT_TYPE_CONNECT: handle_connect(&event); break;
-            case ENET_EVENT_TYPE_DISCONNECT: handle_disconnect(&event); break;
+            case ENET_EVENT_TYPE_CONNECT:
+                handle_connect(&event);
+                break;
+
+            case ENET_EVENT_TYPE_DISCONNECT:
+                handle_disconnect(&event);
+                break;
+
             case ENET_EVENT_TYPE_RECEIVE:
-                                             handle_packet(&event); 
-                                             enet_packet_destroy(event.packet);
-                                             break;
+                if (packet_count < MAX_PACKETS_PER_UPDATE) {
+                    packet_queue[packet_count++] = event;
+                } else {
+                    PERROR("Too many packets\n");
+                    enet_packet_destroy(event.packet);
+                    /* TODO: Handle error */
+                }
+
+                break;
             default: break;
         }
+    }
+
+    for (int i = 0; i < packet_count; i++) {
+        if (packet_queue[i].peer->data != NULL) {
+            handle_packet(&packet_queue[i]);
+        }
+
+        enet_packet_destroy(packet_queue[i].packet);
     }
 
     /* Handle prediction and disconnection logic and stuff */
@@ -186,7 +216,7 @@ void server_gaming_update() {
     for (uint8_t id = 0; id < server.num_clients; id++) {
         ClientInfo *client = &server.clients[id];
         if (!client->peer) continue;
-        uint64_t frame = client->latest_input;
+        uint64_t frame = client->latest_input.frame;
         if (frame == (uint64_t)-1) frame = 0;
         if (frame >= expected_frame) {
             uint64_t ahead = frame - expected_frame;
@@ -203,6 +233,44 @@ void server_gaming_update() {
                         (int)id);
             }
         }
+    }
+
+    /* Do input prediction for disconnected clients */
+    for (uint8_t id = 0; id < server.num_clients; id++) {
+        ClientInfo *client = &server.clients[id];
+        if (client->peer) continue;
+        if (client->latest_input.frame >= client->predict_to) continue;
+        uint64_t frame = client->latest_input.frame + 1;
+        /* Predict inputs up the the servers current expected frame for this 
+         * update, but don't go past client->predict_to */
+        while (frame <= expected_frame && frame <= client->predict_to) {
+            /* Create predicted input packet */
+            PacketServerInput input_packet = {
+                .id = id,
+                .input = client->latest_input
+            };
+            input_packet.input.frame = frame;
+            Packet packet = packet_create(PACKET_SERVER_INPUT, &input_packet);
+            if (packet.type == PACKET_NULL) {
+                PERROR("Failed to create predicted input packet\n");
+                /* TODO: Handle error */
+                break;
+            }
+            for (uint8_t other_id = 0; other_id < server.num_clients; 
+                    other_id++) {
+                if (other_id == id) continue;
+                ClientInfo *other_client = &server.clients[other_id];
+                if (!other_client->peer) continue;
+                if (packet_send(packet, other_client->peer)) {
+                    PERROR("Failed to send input for client %d to client %d\n",
+                            (int)client->player_id, (int)other_client->player_id);
+                    /* TODO: Handle error*/
+                    continue;
+                }
+            }
+            frame++;
+        }
+        client->latest_input.frame = frame;
     }
 }
 

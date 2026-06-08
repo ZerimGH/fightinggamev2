@@ -27,7 +27,12 @@ typedef struct {
 
 static InputManager im = {0};
 static int init = 0;
-static int ok = 0;
+static int over = 1;
+
+static void input_manager_finish(void) {
+    if (!init) return;
+    over = 1;
+}
 
 int input_manager_is_init(void) {
     return init;
@@ -65,7 +70,7 @@ int input_manager_init(InputManagerType type) {
     im.frame = 0;
 
     init = 1;
-    ok = 1;
+    over = 0;
     return 0;
 }
 
@@ -78,10 +83,11 @@ void input_manager_deinit(void) {
         if (server_is_init()) server_deinit();
     }
     init = 0;
-    ok = 0;
+    over = 1;
 }
 
 int input_manager_get_input(uint8_t player_id, Input *input) {
+    if (over) return 1;
     if (!input) return 1;
     if (!init) {
         PERROR("(warn) get_input called when not yet initialised\n");
@@ -101,8 +107,6 @@ static int append(uint8_t player_id, TimedInput input) {
     if (player_id >= im.num_players) return 1;
     InputBuf *player = &im.players[player_id];
     if (input.frame != player->head) return 1; /* Make sure the frame matches the current head*/
-    /* TODO: Handle this better, the player should be disconnected
-     * and wait for the server to confirm disconnection or smth */
     if (player->head - player->tail >= MAX_ROLLBACK) return 1;       /* Too far behind */
     if ((player->head + 1) % MAX_ROLLBACK == player->tail) return 1; /* Too far ahead */
     size_t idx = player->head % MAX_ROLLBACK;
@@ -141,7 +145,7 @@ void input_manager_tick(void) {
                            if (append(0, ti_a) || append(1, ti_b)) {
                                /* Should never fail, good to check ig */
                                PERROR("Failed to append local inputs\n");
-                               ok = 0;
+                               input_manager_finish();
                                return;
                            }
 
@@ -163,13 +167,29 @@ void input_manager_tick(void) {
                          /* Send to server */
                          if (client_send_input(ti_a)) {
                              PERROR("Failed to send local inputs to server\n");
-                             ok = 0;
+                             input_manager_finish();
                              return;
                          }
 
                          /* Update all players' inputs from client */
                          for (uint8_t i = 0; i < im.num_players; i++) {
-                             if (!client_is_connected(i)) continue;
+                             if (!client_is_connected(i, im.frame)) {
+                                 InputBuf *player = &im.players[i];
+                                 /* Write no input for disconnected players */
+                                 while (player->head <= im.frame) {
+                                    TimedInput p_ti = {
+                                        .frame = player->head,
+                                        .input = { .raw = 0 }
+                                    };
+                                    if (append(i, p_ti)) {
+                                        PERROR("Failed to append no input for"
+                                                "disconnected player %d\n",
+                                                (int) i);
+                                        input_manager_finish();
+                                        return;
+                                    }
+                                 }
+                             }
                              InputBuf *player = &im.players[i];
                              /* Check for new inputs */
                              uint64_t p_frame = player->head;
@@ -180,8 +200,8 @@ void input_manager_tick(void) {
                                  p_ti.input = p_input;
                                  if (append(i, p_ti)) {
                                      PERROR("Failed to append inputs from client\n");
-                                     ok = 0;
-                                     break;
+                                     input_manager_finish();
+                                     return;
                                  }
                                  p_frame++;
                              }
@@ -190,20 +210,34 @@ void input_manager_tick(void) {
                          /* Update server if running here */
                          if (server_is_init()) {
                              server_update();
-                             /* Change ok to not ok if player < 2 */
-                             if (server_count_clients() < 2) ok = 0;
+                             /*
+                             if (server_count_clients() < 2) {
+                                 input_manager_finish();
+                                 return;
+                             }
+                             */
                          }
                          break;
                      }
         default: 
                      PERROR("Unhandled input manager type %d\n", im.type);
-                     ok = 0;
+                     input_manager_finish();
                      return;
     }
     im.frame++;
 }
 
-int input_manager_is_ok() {
-    if (!init) return 0;
-    return ok;
+int input_manager_disconnected(uint8_t player_id) {
+    if (!init) return 1;
+    switch (im.type) {
+        case IM_LOCAL: return 0;
+        case IM_LAN: return !client_is_connected(player_id, im.frame);
+    }
+
+    return 1;
+}
+
+int input_manager_over() {
+    if (!init) return 1;
+    return over;
 }

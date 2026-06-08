@@ -153,9 +153,9 @@ int client_send_input(TimedInput input) {
     return client_gaming_send_input(input);
 }
 
-int client_is_connected(uint8_t player_id) {
+int client_is_connected(uint8_t player_id, uint64_t frame) {
     if (state != CS_GAMING) return 0;
-    return client_gaming_is_connected(player_id);
+    return client_gaming_is_connected(player_id, frame);
 }
 
 uint8_t client_get_num_players(void) {

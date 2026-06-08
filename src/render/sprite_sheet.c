@@ -26,7 +26,7 @@ int sprite_sheet_init(SpriteSheet *ss, const char *ext, unsigned char *data, uns
     return 0;
 }
 
-void sprite_sheet_render(SpriteSheet *ss, float x, float y, float w, float h, unsigned int frame, int flip) {
+void sprite_sheet_render(SpriteSheet *ss, float x, float y, float w, float h, unsigned int frame, int flip, Color col) {
     if (!ss) {
         return;
     }
@@ -43,7 +43,7 @@ void sprite_sheet_render(SpriteSheet *ss, float x, float y, float w, float h, un
         src.width *= -1;
     }
 
-    DrawTexturePro(ss->texture, src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+    DrawTexturePro(ss->texture, src, dest, (Vector2){0, 0}, 0.0f, col);
 }
 
 void sprite_sheet_deinit(SpriteSheet *ss) {

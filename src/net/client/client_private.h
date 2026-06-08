@@ -14,6 +14,7 @@ typedef struct {
     uint64_t head;
     /* Connected flag */
     int connected;
+    uint64_t disconnect_frame;
 } PlayerInfo;
 
 typedef struct {

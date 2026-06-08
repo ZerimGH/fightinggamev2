@@ -50,7 +50,12 @@ int server_init(char *name, uint8_t max_players) {
     /* Initialise client list */
     server.num_clients = 0;
     for (int i = 0; i < MAX_PLAYERS; i++) {
-        server.clients[i] = (ClientInfo){.player_id = (uint8_t)i, .peer = NULL, .latest_input = (uint64_t)-1};
+        server.clients[i] = (ClientInfo){
+            .player_id = (uint8_t)i,
+            .peer = NULL,
+            .latest_input = {.frame = (uint64_t)-1, .input = {.raw = 0}}, 
+            .predict_to = (uint64_t)-1
+        };
     }
 
     /* Copy server options */

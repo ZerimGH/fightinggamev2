@@ -22,6 +22,7 @@ typedef struct {
     uint64_t frames;
     uint64_t anim_frame;
     int8_t facing;
+    int connected;
 } Player;
 
 typedef struct {

@@ -88,6 +88,7 @@ void game_state_init(GameState *gs) {
         p->state = PSIdle;
         p->frames = 0;
         p->facing = 1;
+        p->connected = 1;
 
         gs->inputs[i].raw = 0;
         gs->last_inputs[i].raw = 0;
