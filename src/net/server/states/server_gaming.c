@@ -8,8 +8,8 @@
 #include "packet.h"
 #include "global.h"
 
-#define MAX_AHEAD (MAX_ROLLBACK - 1)
-#define MAX_BEHIND (MAX_ROLLBACK - 1)
+#define MAX_AHEAD 32
+#define MAX_BEHIND 32
 
 #define FPS 60 
 
