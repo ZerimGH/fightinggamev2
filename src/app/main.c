@@ -2,8 +2,7 @@
 #include "log.h"
 #include "program.h"
 #include "raylib/raylib.h"
-#include "sprite_sheet_manager.h"
-#include "sprite_sheets.h"
+#include "game_state_renderer.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -28,20 +27,13 @@ int init(void) {
         return 1;
     }
 
-    /* Load assets */
-    if (ssm_init()) return 1;
-    player_idle_sprite = ssm_load(".png", idle_png, sizeof(idle_png), 1, 4);
-    player_walk_sprite = ssm_load(".png", walk_png, sizeof(walk_png), 1, 3);
-    player_punch_sprite = ssm_load(".png", punch_png, sizeof(punch_png), 1, 3);
-    if (player_walk_sprite == -1 || player_idle_sprite == -1 || player_punch_sprite == -1) {
-        ssm_deinit();
+    if (game_state_renderer_init()) {
         enet_deinitialize();
         CloseWindow();
-        return 1;
     }
 
     if (program_init()) {
-        ssm_deinit();
+        game_state_renderer_deinit();
         enet_deinitialize();
         CloseWindow();
         return 1;
@@ -51,7 +43,7 @@ int init(void) {
 }
 
 void deinit(void) {
-    ssm_deinit();
+    game_state_renderer_deinit();
     program_deinit();
     enet_deinitialize();
     CloseWindow();

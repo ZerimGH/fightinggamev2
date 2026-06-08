@@ -4,9 +4,6 @@
 #include "global.h"
 #include "input.h"
 #include "input_manager.h"
-#include "raylib/raylib.h"
-#include "sprite_sheet_manager.h"
-#include "sprite_sheets.h"
 
 #define PLAYER_SPEED 2
 
@@ -234,58 +231,3 @@ uint64_t hash_game_state(GameState *gs) {
     return hash((void *)&gs->players[0], sizeof(Player) * players);
 }
 
-/* TODO: Improve rendering
- * It's not broken but it's so ugly I need to write a whole proper library
- * for rendering I think */
-void game_state_render(GameState *gs) {
-    if (!gs) {
-        return;
-    }
-
-    int screen_w = GetScreenWidth();
-    int screen_h = GetScreenHeight();
-
-    float w_aspect = (float)WORLD_W / (float)WORLD_H;
-    float s_aspect = (float)screen_w / (float)screen_h;
-
-    float scale_x, scale_y, offset_x, offset_y;
-    offset_x = 0.f;
-    offset_y = 0.f;
-
-    float w_screen_w, w_screen_h;
-
-    if (s_aspect > w_aspect) {
-        w_screen_h = screen_h;
-        w_screen_w = screen_h * w_aspect;
-        offset_x = (screen_w - w_screen_w) * 0.5f;
-    } else {
-        w_screen_w = screen_w;
-        w_screen_h = screen_w / w_aspect;
-        offset_y = (screen_h - w_screen_h) * 0.5f;
-    }
-    scale_x = w_screen_w / (float)WORLD_W;
-    scale_y = w_screen_h / (float)WORLD_H;
-
-    ClearBackground(DARKGRAY);
-
-    DrawRectangle((int)offset_x, (int)offset_y, (int)w_screen_w, (int)w_screen_h, BLACK);
-
-    size_t players = input_manager_num_players();
-    for (unsigned int i = 0; i < players; i++) {
-        Player *p = &gs->players[i];
-        float rx, ry, rw, rh;
-        rx = p->x * scale_x + offset_x;
-        ry = (WORLD_H - p->y - PLAYER_H) * scale_y + offset_y;
-        rw = (float)PLAYER_W * scale_x;
-        rh = (float)PLAYER_H * scale_y;
-
-        int anim_sheet = player_idle_sprite;
-        switch (p->state) {
-            case PSIdle: anim_sheet = player_idle_sprite; break;
-            case PSWalk: anim_sheet = player_walk_sprite; break;
-            case PSPunch: anim_sheet = player_punch_sprite; break;
-        }
-
-        ssm_render(anim_sheet, rx, ry, rw, rh, p->anim_frame, p->facing != 1);
-    }
-}

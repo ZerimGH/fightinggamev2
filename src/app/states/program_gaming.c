@@ -3,6 +3,7 @@
 #include "input_manager.h"
 #include "log.h"
 #include "program.h"
+#include "game_state_renderer.h"
 #include "raylib/raylib.h"
 
 #define DT (1.f / 60.f)

@@ -59,7 +59,7 @@ void program_waiting_render(void) {
     const char *back_prompt = "Press escape to disconnect";
     DrawText(back_prompt, 40, screen_h - 40, 18, GRAY);
 
-    const char *text = "Waiting for players...";
+    const char *text = client_connection_confirmed() ? "Waiting for players..." : "Connecting...";
     int font_size = 40;
     int text_width = MeasureText(text, font_size);
     int text_height = font_size;

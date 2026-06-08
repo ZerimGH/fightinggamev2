@@ -163,3 +163,8 @@ uint8_t client_get_num_players(void) {
     return client_gaming_get_num_players();
 }
 
+int client_connection_confirmed(void) {
+    if (state != CS_WAITING) return 0;
+    return client_waiting_connection_confirmed();
+}
+

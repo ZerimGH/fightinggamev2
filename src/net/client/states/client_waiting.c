@@ -66,3 +66,7 @@ void client_waiting_update(void) {
         }
     }
 }
+
+int client_waiting_connection_confirmed(void) {
+    return connected;
+}

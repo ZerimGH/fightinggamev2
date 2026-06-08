@@ -24,6 +24,9 @@ int client_disconnected(void);
 void client_disconnect(void);
 /* Check if the client has received a start packet */
 int client_started(void);
+/* Check if the client has connected to a server and
+ * received confirmation */
+int client_connection_confirmed(void);
 
 /* Get a player's input on a frame
  * Returns 0 and writes to input on success */
