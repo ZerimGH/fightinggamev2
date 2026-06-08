@@ -1,7 +1,7 @@
 FILE2C = ./file2c/file2c
 ASSETS = $(wildcard *.png)
-TARGET_C = ../src/game/assets.c
-TARGET_H = ../src/game/assets.h
+TARGET_C = ../src/render/assets.c
+TARGET_H = ../src/render/assets.h
 
 $(FILE2C):
 	make -C ./file2c all
