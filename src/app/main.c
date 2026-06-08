@@ -1,4 +1,3 @@
-#include "assets.h"
 #include "log.h"
 #include "program.h"
 #include "raylib/raylib.h"
