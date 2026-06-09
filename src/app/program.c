@@ -7,6 +7,7 @@
 #include "program_menu.h"
 #include "program_server_menu.h"
 #include "program_waiting.h"
+#include "program_host.h"
 #include "raylib/raylib.h"
 #include "server.h"
 
@@ -15,7 +16,8 @@
     X(PS_LAN_MENU, program_lan_menu)                                                                                   \
     X(PS_GAMING, program_gaming)                                                                                       \
     X(PS_WAITING, program_waiting)                                                                                     \
-    X(PS_SERVER_MENU, program_server_menu)
+    X(PS_SERVER_MENU, program_server_menu)                                                                                     \
+    X(PS_HOST, program_host)
 
 static ProgramState state = -1;
 

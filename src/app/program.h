@@ -7,6 +7,7 @@ typedef enum {
     PS_LAN_MENU,    /* LAN menu */
     PS_WAITING,     /* Waiting for a LAN game to start */
     PS_SERVER_MENU, /* Display a list of LAN servers to join */
+    PS_HOST,        /* Get server options before hosting */
     PS_GAMING,      /* In a game */
 } ProgramState;
 

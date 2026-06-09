@@ -2,8 +2,6 @@
 #include "program.h"
 #include "raylib/raylib.h"
 #include "game_state_renderer.h"
-#include <stdlib.h>
-#include <time.h>
 
 /* Enet forward declarations (can't include both raylib and enet due to windows.h) */
 extern int enet_initialize(void);
@@ -12,7 +10,6 @@ extern void enet_deinitialize(void);
 int quit = 0;
 
 int init(void) {
-    srand(time(NULL));
     SetTraceLogLevel(LOG_ERROR); /* Hide info messages */
     /* Set window to be resizable and to run even when minimised */
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_ALWAYS_RUN);
