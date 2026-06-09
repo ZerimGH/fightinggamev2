@@ -71,6 +71,11 @@ static int host(void) {
 }
 
 void program_host_update(void) {
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        program_change_state(PS_MENU);
+        return;
+    }
+
     show_cursor = ((int)floor(GetTime() * 2.5) % 2);
 
     int char_pressed;
@@ -107,7 +112,7 @@ void program_host_render(void) {
     float cy = 50;
 
     /* Show escape to return in bottom left */
-    const char *back_prompt = "Press escape to disconnect";
+    const char *back_prompt = "Press escape to return";
     DrawText(back_prompt, 40, screen_h - 40, 18, GRAY);
 
     const char *name_text = TextFormat("Name (type): %s", name);
