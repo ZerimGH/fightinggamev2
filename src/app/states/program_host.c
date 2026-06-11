@@ -72,7 +72,7 @@ static int host(void) {
 
 void program_host_update(void) {
     if (IsKeyPressed(KEY_ESCAPE)) {
-        program_change_state(PS_MENU);
+        program_change_state(PS_LAN_MENU);
         return;
     }
 
