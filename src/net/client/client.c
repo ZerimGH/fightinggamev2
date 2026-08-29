@@ -7,8 +7,8 @@
 #include "log.h"
 
 #define DO_MAGIC                                                                 \
-    X(CLIENT_STATE_DISCOVERING, client_discovering)                                        \
-    X(CLIENT_STATE_WAITING, client_waiting)                                                \
+    X(CLIENT_STATE_DISCOVERING, client_discovering)                              \
+    X(CLIENT_STATE_WAITING, client_waiting)                                      \
     X(CLIENT_STATE_GAMING, client_gaming)
 
 Client client            = {0};

@@ -30,8 +30,9 @@ void program_lan_menu_update(void) {
                     PERROR("Failed to initialise client\n");
                     return;
                 }
-                /* PROGRAM_STATE_SERVER_MENU will handle displaying a list of servers to join
-                 * After a server has been joined it will go to PROGRAM_STATE_WAITING */
+                /* PROGRAM_STATE_SERVER_MENU will handle displaying a list of
+                 * servers to join After a server has been joined it will go to
+                 * PROGRAM_STATE_WAITING */
                 program_state_change(PROGRAM_STATE_SERVER_MENU);
                 break;
             case 2:

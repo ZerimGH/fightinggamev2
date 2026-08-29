@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define DO_MAGIC                                                                 \
-    X(SERVER_STATE_WAITING, server_waiting)                                                \
+    X(SERVER_STATE_WAITING, server_waiting)                                      \
     X(SERVER_STATE_GAMING, server_gaming)
 
 Server server            = {0};

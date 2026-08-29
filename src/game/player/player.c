@@ -10,8 +10,8 @@
 #define ANIM_FRAMES 12
 
 #define DO_MAGIC                                                                 \
-    X(PLAYER_STATE_IDLE, player_idle)                                                      \
-    X(PLAYER_STATE_WALK, player_walk)                                                      \
+    X(PLAYER_STATE_IDLE, player_idle)                                            \
+    X(PLAYER_STATE_WALK, player_walk)                                            \
     X(PLAYER_STATE_PUNCH, player_punch)
 
 void player_init(Player *p, int idx, int tot) {

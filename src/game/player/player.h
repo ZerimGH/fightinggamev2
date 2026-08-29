@@ -9,7 +9,11 @@
 
 /* Unfortunately, player states cannot be in player_private.h
  * as they need to be referenced for GameFrame.players */
-typedef enum { PLAYER_STATE_IDLE, PLAYER_STATE_WALK, PLAYER_STATE_PUNCH } PlayerState;
+typedef enum {
+    PLAYER_STATE_IDLE,
+    PLAYER_STATE_WALK,
+    PLAYER_STATE_PUNCH
+} PlayerState;
 
 typedef struct {
     uint16_t x, y;

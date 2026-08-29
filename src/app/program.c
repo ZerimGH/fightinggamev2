@@ -12,11 +12,11 @@
 #include <stdlib.h>
 
 #define DO_MAGIC                                                                 \
-    X(PROGRAM_STATE_MENU, program_menu)                                                     \
-    X(PROGRAM_STATE_LAN_MENU, program_lan_menu)                                             \
-    X(PROGRAM_STATE_GAMING, program_gaming)                                                 \
-    X(PROGRAM_STATE_WAITING, program_waiting)                                               \
-    X(PROGRAM_STATE_SERVER_MENU, program_server_menu)                                       \
+    X(PROGRAM_STATE_MENU, program_menu)                                          \
+    X(PROGRAM_STATE_LAN_MENU, program_lan_menu)                                  \
+    X(PROGRAM_STATE_GAMING, program_gaming)                                      \
+    X(PROGRAM_STATE_WAITING, program_waiting)                                    \
+    X(PROGRAM_STATE_SERVER_MENU, program_server_menu)                            \
     X(PROGRAM_STATE_HOST, program_host)
 
 static ProgramState state = -1;
