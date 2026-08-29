@@ -8,8 +8,8 @@
 #include <stdint.h>
 
 typedef enum {
-    SS_WAITING, /* Waiting for clients */
-    SS_GAMING   /* Game has started */
+    SERVER_STATE_WAITING, /* Waiting for clients */
+    SERVER_STATE_GAMING   /* Game has started */
 } ServerState;
 
 typedef struct {

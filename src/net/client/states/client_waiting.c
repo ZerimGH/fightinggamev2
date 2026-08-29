@@ -51,7 +51,7 @@ void client_waiting_update(void) {
                 if (packet.type == PACKET_SERVER_START) {
                     client.num_players = packet.u.server_start.num_players;
                     client.player_id   = packet.u.server_start.id;
-                    if (client_state_change(CS_GAMING)) {
+                    if (client_state_change(CLIENT_STATE_GAMING)) {
                         PERROR("Failed to enter gaming state\n");
                         client_disconnect();
                         client_state_change((ClientState)-1);

@@ -6,7 +6,7 @@
 #include "input.h"
 #include <stdint.h>
 
-typedef enum { CS_DISCOVERING, CS_WAITING, CS_GAMING } ClientState;
+typedef enum { CLIENT_STATE_DISCOVERING, CLIENT_STATE_WAITING, CLIENT_STATE_GAMING } ClientState;
 
 typedef struct {
     /* Circular buffer of inputs */

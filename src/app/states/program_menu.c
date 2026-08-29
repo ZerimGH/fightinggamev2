@@ -23,7 +23,7 @@ void program_menu_update(void) {
             switch (i) {
             case 0:
                 /* LAN */
-                program_state_change(PS_LAN_MENU);
+                program_state_change(PROGRAM_STATE_LAN_MENU);
                 break;
             case 1:
                 /* Local game*/
@@ -31,7 +31,7 @@ void program_menu_update(void) {
                     PERROR("Failed to initialise input manager\n");
                     break;
                 }
-                if (program_state_change(PS_GAMING)) {
+                if (program_state_change(PROGRAM_STATE_GAMING)) {
                     input_manager_deinit();
                     PERROR("Failed to change to gaming state\n");
                 }

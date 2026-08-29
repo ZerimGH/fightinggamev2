@@ -7,9 +7,9 @@
 #include "log.h"
 
 #define DO_MAGIC                                                                 \
-    X(CS_DISCOVERING, client_discovering)                                        \
-    X(CS_WAITING, client_waiting)                                                \
-    X(CS_GAMING, client_gaming)
+    X(CLIENT_STATE_DISCOVERING, client_discovering)                                        \
+    X(CLIENT_STATE_WAITING, client_waiting)                                                \
+    X(CLIENT_STATE_GAMING, client_gaming)
 
 Client client            = {0};
 static ClientState state = (ClientState)-1;
@@ -31,7 +31,7 @@ int client_init(void) {
     }
 
     /* Set state */
-    if (client_state_enter(CS_DISCOVERING)) {
+    if (client_state_enter(CLIENT_STATE_DISCOVERING)) {
         PERROR("Failed to enter discovering state\n");
         enet_host_destroy(client.host);
         client.host = NULL;
@@ -58,7 +58,7 @@ void client_deinit(void) {
 int client_is_init(void) { return init; }
 
 int client_get_servers(ServerInfo *buf, int buf_len) {
-    if (!init || state != CS_DISCOVERING) return 0;
+    if (!init || state != CLIENT_STATE_DISCOVERING) return 0;
     return client_discovering_get_servers(buf, buf_len);
 }
 
@@ -81,7 +81,7 @@ int client_join(uint32_t host, uint16_t port) {
     client.peer = enet_host_connect(client.host, &addr, 1, 0);
     if (!client.peer) return 1;
 
-    if (client_state_change(CS_WAITING)) {
+    if (client_state_change(CLIENT_STATE_WAITING)) {
         PERROR("Failed to enter waiting state\n");
         enet_peer_disconnect_now(client.peer, 0);
         return 1;
@@ -97,30 +97,30 @@ void client_disconnect(void) {
     client.peer = NULL;
 }
 
-int client_started(void) { return state == CS_GAMING; }
+int client_started(void) { return state == CLIENT_STATE_GAMING; }
 
 int client_get_input(uint8_t player_id, uint64_t frame, Input *input) {
-    if (state != CS_GAMING) return 1;
+    if (state != CLIENT_STATE_GAMING) return 1;
     return client_gaming_get_input(player_id, frame, input);
 }
 
 int client_send_input(TimedInput input) {
-    if (state != CS_GAMING) return 1;
+    if (state != CLIENT_STATE_GAMING) return 1;
     return client_gaming_send_input(input);
 }
 
 int client_is_connected(uint8_t player_id, uint64_t frame) {
-    if (state != CS_GAMING) return 0;
+    if (state != CLIENT_STATE_GAMING) return 0;
     return client_gaming_is_connected(player_id, frame);
 }
 
 uint8_t client_get_num_players(void) {
-    if (state != CS_GAMING) return 0;
+    if (state != CLIENT_STATE_GAMING) return 0;
     return client_gaming_get_num_players();
 }
 
 int client_connection_confirmed(void) {
-    if (state != CS_WAITING) return 0;
+    if (state != CLIENT_STATE_WAITING) return 0;
     return client_waiting_connection_confirmed();
 }
 

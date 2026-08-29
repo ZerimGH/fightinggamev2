@@ -32,7 +32,7 @@ void program_server_menu_update(void) {
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         client_deinit();
-        program_state_change(PS_LAN_MENU);
+        program_state_change(PROGRAM_STATE_LAN_MENU);
         return;
     }
 
@@ -51,7 +51,7 @@ void program_server_menu_update(void) {
             if (client_join(infos[i].host, infos[i].port)) {
                 PERROR("Failed to join server: %s\n", infos[i].name);
             } else {
-                program_state_change(PS_WAITING);
+                program_state_change(PROGRAM_STATE_WAITING);
                 return;
             }
         }

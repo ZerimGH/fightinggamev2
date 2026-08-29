@@ -40,7 +40,7 @@ void program_gaming_update(void) {
         game_tick();
         if (input_manager_over()) {
             PINFO("Input manager stopped, returning to menu\n");
-            program_state_change(PS_MENU); /* Will deinit everything */
+            program_state_change(PROGRAM_STATE_MENU); /* Will deinit everything */
             return;
         }
         next_time += DT;
@@ -52,7 +52,7 @@ void program_gaming_update(void) {
     if (esc_time > 0.0 && cur_time - esc_time >= 1.0) {
         esc_time = -1.0;
         PINFO("Returning to menu\n");
-        program_state_change(PS_MENU); /* Will deinit everything */
+        program_state_change(PROGRAM_STATE_MENU); /* Will deinit everything */
         return;
     }
 }

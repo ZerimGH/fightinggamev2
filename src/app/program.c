@@ -12,12 +12,12 @@
 #include <stdlib.h>
 
 #define DO_MAGIC                                                                 \
-    X(PS_MENU, program_menu)                                                     \
-    X(PS_LAN_MENU, program_lan_menu)                                             \
-    X(PS_GAMING, program_gaming)                                                 \
-    X(PS_WAITING, program_waiting)                                               \
-    X(PS_SERVER_MENU, program_server_menu)                                       \
-    X(PS_HOST, program_host)
+    X(PROGRAM_STATE_MENU, program_menu)                                                     \
+    X(PROGRAM_STATE_LAN_MENU, program_lan_menu)                                             \
+    X(PROGRAM_STATE_GAMING, program_gaming)                                                 \
+    X(PROGRAM_STATE_WAITING, program_waiting)                                               \
+    X(PROGRAM_STATE_SERVER_MENU, program_server_menu)                                       \
+    X(PROGRAM_STATE_HOST, program_host)
 
 static ProgramState state = -1;
 
@@ -25,12 +25,12 @@ static int state_enter(ProgramState new_state);
 
 int program_init(void) {
     if (state != (ProgramState)-1) { return 1; }
-    state_enter(PS_MENU);
+    state_enter(PROGRAM_STATE_MENU);
     return 0;
 }
 
 static int state_enter(ProgramState new_state) {
-    if (new_state != PS_GAMING) SetTargetFPS(30);
+    if (new_state != PROGRAM_STATE_GAMING) SetTargetFPS(30);
     else SetTargetFPS(120); /* Should be fine ? */
     switch (new_state) {
 #define X(STATE, PREFIX)                                                         \
@@ -60,7 +60,7 @@ int program_state_change(ProgramState new_state) {
     state_exit();
     if (state_enter(new_state)) {
         PERROR("Failed to enter state %d, going to menu.\n", new_state);
-        state_enter(PS_MENU);
+        state_enter(PROGRAM_STATE_MENU);
         return 1;
     }
     return 0;

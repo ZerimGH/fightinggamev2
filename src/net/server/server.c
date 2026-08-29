@@ -10,8 +10,8 @@
 #include <string.h>
 
 #define DO_MAGIC                                                                 \
-    X(SS_WAITING, server_waiting)                                                \
-    X(SS_GAMING, server_gaming)
+    X(SERVER_STATE_WAITING, server_waiting)                                                \
+    X(SERVER_STATE_GAMING, server_gaming)
 
 Server server            = {0};
 static ServerState state = (ServerState)-1;
@@ -64,7 +64,7 @@ int server_init(char *name, uint8_t max_players) {
     server.max_clients = max_players;
 
     /* Set state */
-    if (server_state_enter(SS_WAITING)) {
+    if (server_state_enter(SERVER_STATE_WAITING)) {
         PERROR("Failed to enter waiting state\n");
         enet_host_destroy(server.host);
         server.host = NULL;
@@ -122,7 +122,7 @@ ServerInfo server_get_info(void) {
 }
 
 uint8_t server_count_clients(void) {
-    if (state != SS_GAMING) return server.num_clients;
+    if (state != SERVER_STATE_GAMING) return server.num_clients;
     return server_gaming_count_clients();
 }
 
@@ -162,7 +162,7 @@ void server_update(void) {
     switch (state) { DO_MAGIC }
 #undef X
 
-    if (state != SS_GAMING) enet_host_flush(server.host);
+    if (state != SERVER_STATE_GAMING) enet_host_flush(server.host);
 }
 
 int server_state_change(ServerState new) {

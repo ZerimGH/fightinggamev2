@@ -21,7 +21,7 @@ void program_waiting_update(void) {
         client_deinit();
         if (server_is_init()) server_deinit();
         PERROR("Disconnected from server, returning to LAN menu\n");
-        program_state_change(PS_LAN_MENU);
+        program_state_change(PROGRAM_STATE_LAN_MENU);
         return;
     }
 
@@ -29,9 +29,9 @@ void program_waiting_update(void) {
         if (input_manager_init(IM_LAN)) {
             PERROR("Failed to initialise input manager\n");
             client_deinit();
-            program_state_change(PS_LAN_MENU);
+            program_state_change(PROGRAM_STATE_LAN_MENU);
         } else {
-            program_state_change(PS_GAMING);
+            program_state_change(PROGRAM_STATE_GAMING);
         }
         return;
     }

@@ -61,15 +61,15 @@ static int host(void) {
         client_deinit();
         return 1;
     }
-    /* PS_WAITING will handle updating the server and waiting
+    /* PROGRAM_STATE_WAITING will handle updating the server and waiting
      * for the game to start */
-    program_state_change(PS_WAITING);
+    program_state_change(PROGRAM_STATE_WAITING);
     return 0;
 }
 
 void program_host_update(void) {
     if (IsKeyPressed(KEY_ESCAPE)) {
-        program_state_change(PS_LAN_MENU);
+        program_state_change(PROGRAM_STATE_LAN_MENU);
         return;
     }
 

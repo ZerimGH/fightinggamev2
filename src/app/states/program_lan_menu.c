@@ -21,7 +21,7 @@ void program_lan_menu_update(void) {
             switch (i) {
             case 0:
                 /* Host a game */
-                program_state_change(PS_HOST);
+                program_state_change(PROGRAM_STATE_HOST);
                 break;
             case 1:
                 /* Join a game */
@@ -30,13 +30,13 @@ void program_lan_menu_update(void) {
                     PERROR("Failed to initialise client\n");
                     return;
                 }
-                /* PS_SERVER_MENU will handle displaying a list of servers to join
-                 * After a server has been joined it will go to PS_WAITING */
-                program_state_change(PS_SERVER_MENU);
+                /* PROGRAM_STATE_SERVER_MENU will handle displaying a list of servers to join
+                 * After a server has been joined it will go to PROGRAM_STATE_WAITING */
+                program_state_change(PROGRAM_STATE_SERVER_MENU);
                 break;
             case 2:
                 /* Back to menu */
-                program_state_change(PS_MENU);
+                program_state_change(PROGRAM_STATE_MENU);
                 break;
             }
         }
