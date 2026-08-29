@@ -1,9 +1,11 @@
 #include "assets.h"
 #include "game_frame.h"
 #include "log.h"
+#include "player.h"
 #include "raylib/raylib.h"
 #include "sprite_sheet_manager.h"
 #include "sprite_sheets.h"
+#include "world.h"
 
 int game_frame_renderer_init(void) {
     if (ssm_init()) return 1;
@@ -25,7 +27,7 @@ void game_frame_render(GameFrame *gf) {
     int screen_w = GetScreenWidth();
     int screen_h = GetScreenHeight();
 
-    float w_aspect = (float)WORLD_W / (float)WORLD_H;
+    float w_aspect = (float)WORLD_WIDTH / (float)WORLD_HEIGHT;
     float s_aspect = (float)screen_w / (float)screen_h;
 
     float scale_x, scale_y, offset_x, offset_y;
@@ -43,8 +45,8 @@ void game_frame_render(GameFrame *gf) {
         w_screen_h = screen_w / w_aspect;
         offset_y   = (screen_h - w_screen_h) * 0.5f;
     }
-    scale_x = w_screen_w / (float)WORLD_W;
-    scale_y = w_screen_h / (float)WORLD_H;
+    scale_x = w_screen_w / (float)WORLD_WIDTH;
+    scale_y = w_screen_h / (float)WORLD_HEIGHT;
 
     ClearBackground(DARKGRAY);
 
@@ -55,15 +57,15 @@ void game_frame_render(GameFrame *gf) {
         Player *p = &gf->players[i];
         float rx, ry, rw, rh;
         rx = p->x * scale_x + offset_x;
-        ry = (WORLD_H - p->y - PLAYER_H) * scale_y + offset_y;
-        rw = (float)PLAYER_W * scale_x;
-        rh = (float)PLAYER_H * scale_y;
+        ry = (WORLD_HEIGHT - p->y - PLAYER_HEIGHT) * scale_y + offset_y;
+        rw = (float)PLAYER_WIDTH * scale_x;
+        rh = (float)PLAYER_HEIGHT * scale_y;
 
         int anim_sheet = player_idle_sprite;
         switch (p->state) {
-        case PSIdle:  anim_sheet = player_idle_sprite; break;
-        case PSWalk:  anim_sheet = player_walk_sprite; break;
-        case PSPunch: anim_sheet = player_punch_sprite; break;
+        case PLAYER_STATE_IDLE:  anim_sheet = player_idle_sprite; break;
+        case PLAYER_STATE_WALK:  anim_sheet = player_walk_sprite; break;
+        case PLAYER_STATE_PUNCH: anim_sheet = player_punch_sprite; break;
         }
 
         Color col = p->connected ? WHITE : (Color){150, 150, 150, 128};
