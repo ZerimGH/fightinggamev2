@@ -3,13 +3,12 @@
 #include "input_manager.h"
 #include "log.h"
 #include "program.h"
-#include "game_state_renderer.h"
 #include "raylib/raylib.h"
 
 #define DT (1.f / 60.f)
 
 static double start_time = 0.0;
-static double next_time = 0.0;
+static double next_time  = 0.0;
 
 static double esc_time = -1.0;
 
@@ -25,7 +24,7 @@ int program_gaming_enter(void) {
     }
 
     start_time = GetTime();
-    next_time = start_time + DT;
+    next_time  = start_time + DT;
 
     return 0;
 }
@@ -41,7 +40,7 @@ void program_gaming_update(void) {
         game_tick();
         if (input_manager_over()) {
             PINFO("Input manager stopped, returning to menu\n");
-            program_change_state(PS_MENU); /* Will deinit everything */
+            program_state_change(PS_MENU); /* Will deinit everything */
             return;
         }
         next_time += DT;
@@ -53,7 +52,7 @@ void program_gaming_update(void) {
     if (esc_time > 0.0 && cur_time - esc_time >= 1.0) {
         esc_time = -1.0;
         PINFO("Returning to menu\n");
-        program_change_state(PS_MENU); /* Will deinit everything */
+        program_state_change(PS_MENU); /* Will deinit everything */
         return;
     }
 }
@@ -63,7 +62,7 @@ void program_gaming_render(void) {
     game_render();
 
     /* Show escape to return in bottom left */
-    float screen_h = (float)GetScreenHeight();
+    float screen_h          = (float)GetScreenHeight();
     const char *back_prompt = "Hold escape for 1 second to exit";
     if (esc_time > 0) DrawText(back_prompt, 40, screen_h - 40, 18, GRAY);
 }

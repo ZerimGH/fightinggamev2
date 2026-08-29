@@ -1,9 +1,10 @@
+#include "game_frame_renderer.h"
 #include "log.h"
 #include "program.h"
 #include "raylib/raylib.h"
-#include "game_state_renderer.h"
 
-/* Enet forward declarations (can't include both raylib and enet due to windows.h) */
+/* Enet forward declarations (can't include both raylib and enet due to windows.h)
+ */
 extern int enet_initialize(void);
 extern void enet_deinitialize(void);
 
@@ -23,13 +24,13 @@ int init(void) {
         return 1;
     }
 
-    if (game_state_renderer_init()) {
+    if (game_frame_renderer_init()) {
         enet_deinitialize();
         CloseWindow();
     }
 
     if (program_init()) {
-        game_state_renderer_deinit();
+        game_frame_renderer_deinit();
         enet_deinitialize();
         CloseWindow();
         return 1;
@@ -39,7 +40,7 @@ int init(void) {
 }
 
 void deinit(void) {
-    game_state_renderer_deinit();
+    game_frame_renderer_deinit();
     program_deinit();
     enet_deinitialize();
     CloseWindow();

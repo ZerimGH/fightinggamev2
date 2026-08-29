@@ -1,3 +1,5 @@
+/* Mostly copied line for line from https://github.com/cxong/ENetLANChatServer */
+
 #include "server_waiting.h"
 #include "discovery.h"
 #include "enet/enet.h"
@@ -7,7 +9,7 @@
 #include "server_private.h"
 
 /* Discovery data */
-static ENetSocket sock = ENET_SOCKET_NULL;
+static ENetSocket sock  = ENET_SOCKET_NULL;
 static ENetAddress addr = {0};
 
 int server_waiting_enter(void) {
@@ -50,25 +52,27 @@ static void discover(void) {
     ENetAddress recvaddr;
     char buf;
     ENetBuffer recvbuf;
-    recvbuf.data = &buf;
+    recvbuf.data       = &buf;
     recvbuf.dataLength = sizeof(buf);
-    int recvlen = enet_socket_receive(sock, &recvaddr, &recvbuf, 1);
+    int recvlen        = enet_socket_receive(sock, &recvaddr, &recvbuf, 1);
     if (recvlen <= 0) return;
 
     /* Reply with server info */
-    ServerInfo info = server_get_info();
-    recvbuf.data = &info;
+    ServerInfo info    = server_get_info();
+    recvbuf.data       = &info;
     recvbuf.dataLength = sizeof(info);
-    if (enet_socket_send(sock, &recvaddr, &recvbuf, 1) != (int)sizeof(info)) return;
+    if (enet_socket_send(sock, &recvaddr, &recvbuf, 1) != (int)sizeof(info))
+        return;
 }
 
 static void handle_connect(ENetEvent event) {
-    if (server.num_clients >= server.max_clients || server.num_clients >= MAX_PLAYERS) {
+    if (server.num_clients >= server.max_clients
+        || server.num_clients >= MAX_PLAYERS) {
         enet_peer_disconnect_now(event.peer, 0);
         return;
     }
     ClientInfo *client = &server.clients[server.num_clients++];
-    client->peer = event.peer;
+    client->peer       = event.peer;
     client->peer->data = (void *)client;
 }
 
@@ -83,7 +87,7 @@ static void handle_disconnect(ENetEvent event) {
             client->peer = NULL;
             /* This sucks, oh well */
             for (int j = i + 1; j < server.num_clients; j++) {
-                server.clients[j - 1].peer = server.clients[j].peer;
+                server.clients[j - 1].peer       = server.clients[j].peer;
                 server.clients[j - 1].peer->data = (void *)&server.clients[j - 1];
             }
             server.num_clients--;
@@ -99,18 +103,19 @@ void server_waiting_update(void) {
     ENetEvent event;
     while (enet_host_service(server.host, &event, 0) > 0) {
         switch (event.type) {
-            case ENET_EVENT_TYPE_CONNECT: handle_connect(event); break;
-            case ENET_EVENT_TYPE_DISCONNECT: handle_disconnect(event); break;
-            case ENET_EVENT_TYPE_RECEIVE:
-                /* Ignore packet and destroy */
-                enet_packet_destroy(event.packet);
-                break;
-            default: break;
+        case ENET_EVENT_TYPE_CONNECT:    handle_connect(event); break;
+        case ENET_EVENT_TYPE_DISCONNECT: handle_disconnect(event); break;
+        case ENET_EVENT_TYPE_RECEIVE:
+            /* Ignore packet and destroy */
+            enet_packet_destroy(event.packet);
+            break;
+        default: break;
         }
     }
 
     /* Start the game if max_clients reached */
-    if (server.num_clients >= server.max_clients || server.num_clients >= MAX_PLAYERS) {
-        server_change_state(SS_GAMING);
+    if (server.num_clients >= server.max_clients
+        || server.num_clients >= MAX_PLAYERS) {
+        server_state_change(SS_GAMING);
     }
 }

@@ -27,10 +27,8 @@ typedef struct {
     uint8_t player_id;
 } Client;
 
-#ifndef CLIENT_MAIN
 extern Client client;
-#endif
 
-int client_change_state(ClientState new);
+int client_state_change(ClientState new);
 
 #endif /* CLIENT_PRIVATE_H */

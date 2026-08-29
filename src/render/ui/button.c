@@ -2,12 +2,12 @@
 #include "raylib/raylib.h"
 
 #define MAX_FONT_SIZE_MULT 0.04f
-#define MIN_FONT_SIZE      14
-#define SPACING_H          24.0f
-#define SPACING_W          10.0f
+#define MIN_FONT_SIZE 14
+#define SPACING_H 24.0f
+#define SPACING_W 10.0f
 
-static void calculate_layout(int tot, int *out_font_size, float *out_row_w, float *out_row_h, int *out_cols,
-                             float *out_grid_h) {
+static void calculate_layout(int tot, int *out_font_size, float *out_row_w,
+    float *out_row_h, int *out_cols, float *out_grid_h) {
     float screen_w = (float)GetScreenWidth();
     float screen_h = (float)GetScreenHeight();
 
@@ -15,7 +15,7 @@ static void calculate_layout(int tot, int *out_font_size, float *out_row_w, floa
     if (max_font_size < MIN_FONT_SIZE) max_font_size = MIN_FONT_SIZE;
 
     int font_size = max_font_size;
-    int cols = 1;
+    int cols      = 1;
 
     float max_h = screen_h * 0.8f;
     float cur_h = 0.0f;
@@ -39,10 +39,10 @@ static void calculate_layout(int tot, int *out_font_size, float *out_row_w, floa
     if (cols > 1) row_w = (screen_w - 240.0f) / 2.0f;
 
     *out_font_size = font_size;
-    *out_row_h = (float)font_size + SPACING_H;
-    *out_row_w = row_w;
-    *out_cols = cols;
-    *out_grid_h = cur_h;
+    *out_row_h     = (float)font_size + SPACING_H;
+    *out_row_w     = row_w;
+    *out_cols      = cols;
+    *out_grid_h    = cur_h;
 }
 
 static Rectangle button_to_dynamic_rect(int idx, int tot) {
@@ -56,8 +56,8 @@ static Rectangle button_to_dynamic_rect(int idx, int tot) {
     calculate_layout(tot, &font_size, &row_w, &row_h, &cols, &grid_h);
 
     int col_len = (tot + cols - 1) / cols;
-    int col = idx / col_len;
-    int row = idx % col_len;
+    int col     = idx / col_len;
+    int row     = idx % col_len;
 
     float start_y = (screen_h - grid_h) / 2.0f;
     float start_x = 100.0f;
@@ -65,7 +65,7 @@ static Rectangle button_to_dynamic_rect(int idx, int tot) {
     if (cols == 1) start_x = (screen_w - row_w) / 2.0f;
     else {
         float grid_w = (cols * row_w) + ((cols - 1) * 40.0f);
-        start_x = (screen_w - grid_w) / 2.0f;
+        start_x      = (screen_w - grid_w) / 2.0f;
     }
 
     float dx = col * (row_w + 40.0f);
@@ -85,16 +85,16 @@ void button_render(Button *button, int idx, int tot) {
     calculate_layout(tot, &font_size, &row_w, &row_h, &cols, &grid_h);
 
     Vector2 mouse_pos = GetMousePosition();
-    int selected = CheckCollisionPointRec(mouse_pos, rect);
+    int selected      = CheckCollisionPointRec(mouse_pos, rect);
 
-    Color panel_colour = selected ? DARKGRAY : GetColor(0x1F1F1F);
+    Color panel_colour  = selected ? DARKGRAY : GetColor(0x1F1F1F);
     Color border_colour = selected ? RED : GRAY;
-    Color text_colour = WHITE;
+    Color text_colour   = WHITE;
 
     if (!button->active) {
-        panel_colour = GetColor(0x121212);
+        panel_colour  = GetColor(0x121212);
         border_colour = DARKGRAY;
-        text_colour = GRAY;
+        text_colour   = GRAY;
     }
 
     DrawRectangleRec(rect, panel_colour);
@@ -115,10 +115,12 @@ void button_set_active(Button *button, int val) {
 int button_pressed(Button *button, int idx, int tot) {
     if (!button || !button->active) return 0;
 
-    Rectangle rect = button_to_dynamic_rect(idx, tot);
+    Rectangle rect    = button_to_dynamic_rect(idx, tot);
     Vector2 mouse_pos = GetMousePosition();
 
-    if (CheckCollisionPointRec(mouse_pos, rect) && IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) return 1;
+    if (CheckCollisionPointRec(mouse_pos, rect)
+        && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        return 1;
 
     return 0;
 }

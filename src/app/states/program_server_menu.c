@@ -1,11 +1,11 @@
 #include "program_server_menu.h"
-#include <stdio.h>
 #include "button.h"
 #include "client.h"
 #include "log.h"
 #include "program.h"
 #include "raylib/raylib.h"
 #include "server_info.h"
+#include <stdio.h>
 
 #define MAX_INFOS 64
 
@@ -23,9 +23,7 @@ int program_server_menu_enter(void) {
     return 0;
 }
 
-void program_server_menu_exit(void) {
-    num_infos = 0;
-}
+void program_server_menu_exit(void) { num_infos = 0; }
 
 void program_server_menu_update(void) {
     client_update();
@@ -34,7 +32,7 @@ void program_server_menu_update(void) {
 
     if (IsKeyPressed(KEY_ESCAPE)) {
         client_deinit();
-        program_change_state(PS_LAN_MENU);
+        program_state_change(PS_LAN_MENU);
         return;
     }
 
@@ -42,14 +40,18 @@ void program_server_menu_update(void) {
         Button *button = &buttons[i];
         button->active = 1;
 
-        snprintf(button->text, sizeof(button->text), "%s (%d/%d)", infos[i].name, infos[i].cur_players,
-                 infos[i].max_players);
+        snprintf(button->text,
+            sizeof(button->text),
+            "%s (%d/%d)",
+            infos[i].name,
+            infos[i].cur_players,
+            infos[i].max_players);
 
         if (button_pressed(button, i, num_infos)) {
             if (client_join(infos[i].host, infos[i].port)) {
                 PERROR("Failed to join server: %s\n", infos[i].name);
             } else {
-                program_change_state(PS_WAITING);
+                program_state_change(PS_WAITING);
                 return;
             }
         }
@@ -69,8 +71,12 @@ void program_server_menu_render(void) {
     /* Display a message if no servers */
     if (num_infos == 0) {
         const char *no_servers = "No servers found";
-        int ns_w = MeasureText(no_servers, 20);
-        DrawText(no_servers, (screen_w / 2.0f) - (ns_w / 2.0f), (float)GetScreenHeight() / 2.0f, 20, GRAY);
+        int ns_w               = MeasureText(no_servers, 20);
+        DrawText(no_servers,
+            (screen_w / 2.0f) - (ns_w / 2.0f),
+            (float)GetScreenHeight() / 2.0f,
+            20,
+            GRAY);
         return;
     }
 

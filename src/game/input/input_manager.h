@@ -1,8 +1,8 @@
 #ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
-#include <stdint.h>
 #include "input.h"
+#include <stdint.h>
 
 typedef enum { IM_LOCAL, IM_LAN } InputManagerType;
 

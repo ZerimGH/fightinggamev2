@@ -6,40 +6,38 @@
 #include "raylib/raylib.h"
 #include "server.h"
 
-static Button buttons[] = {{"HOST A GAME", 1}, {"JOIN A GAME", 1}, {"BACK TO MENU", 1}};
+static Button buttons[] = {
+    {"HOST A GAME", 1}, {"JOIN A GAME", 1}, {"BACK TO MENU", 1}};
 
 #define BUTTON_COUNT (sizeof(buttons) / sizeof(buttons[0]))
 
-int program_lan_menu_enter(void) {
-    return 0;
-}
+int program_lan_menu_enter(void) { return 0; }
 
-void program_lan_menu_exit(void) {
-}
+void program_lan_menu_exit(void) {}
 
 void program_lan_menu_update(void) {
     for (int i = 0; i < (int)BUTTON_COUNT; i++) {
         if (button_pressed(&buttons[i], i, BUTTON_COUNT)) {
             switch (i) {
-                case 0:
-                    /* Host a game */
-                    program_change_state(PS_HOST);
-                    break;
-                case 1:
-                    /* Join a game */
-                    /* Create a client to scan for and connect to servers */
-                    if (client_init()) {
-                        PERROR("Failed to initialise client\n");
-                        return;
-                    }
-                    /* PS_SERVER_MENU will handle displaying a list of servers to join
-                     * After a server has been joined it will go to PS_WAITING */
-                    program_change_state(PS_SERVER_MENU);
-                    break;
-                case 2:
-                    /* Back to menu */
-                    program_change_state(PS_MENU);
-                    break;
+            case 0:
+                /* Host a game */
+                program_state_change(PS_HOST);
+                break;
+            case 1:
+                /* Join a game */
+                /* Create a client to scan for and connect to servers */
+                if (client_init()) {
+                    PERROR("Failed to initialise client\n");
+                    return;
+                }
+                /* PS_SERVER_MENU will handle displaying a list of servers to join
+                 * After a server has been joined it will go to PS_WAITING */
+                program_state_change(PS_SERVER_MENU);
+                break;
+            case 2:
+                /* Back to menu */
+                program_state_change(PS_MENU);
+                break;
             }
         }
     }

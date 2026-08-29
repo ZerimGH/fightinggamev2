@@ -1,10 +1,10 @@
 #include "console.h"
+#include "raylib/raylib.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include "raylib/raylib.h"
 
-#define CONSOLE_SIZE     512
+#define CONSOLE_SIZE 512
 #define CONSOLE_MSG_TIME 5.0f
 
 char chars[CONSOLE_SIZE];
@@ -28,9 +28,7 @@ void console_printf(const char *fmt, ...) {
 
         head = (head + 1) % CONSOLE_SIZE;
 
-        if (head == tail) {
-            tail = (tail + 1) % CONSOLE_SIZE;
-        }
+        if (head == tail) { tail = (tail + 1) % CONSOLE_SIZE; }
     }
 }
 
@@ -43,23 +41,19 @@ void console_update(void) {
 }
 
 void console_render(void) {
-    if (tail == head) {
-        return;
-    }
+    if (tail == head) { return; }
     int screen_h = GetScreenHeight();
 
     float font_size = (float)screen_h / 40.0f;
-    if (font_size < 10.0f) {
-        font_size = 10.0f;
-    }
+    if (font_size < 10.0f) { font_size = 10.0f; }
 
     static char buf[CONSOLE_SIZE + 1];
-    int count = 0;
+    int count   = 0;
     int current = tail;
 
     while (current != head) {
         buf[count++] = chars[current];
-        current = (current + 1) % CONSOLE_SIZE;
+        current      = (current + 1) % CONSOLE_SIZE;
     }
     buf[count] = '\0';
 

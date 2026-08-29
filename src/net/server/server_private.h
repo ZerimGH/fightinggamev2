@@ -1,11 +1,11 @@
 #ifndef SERVER_PRIVATE_H
 #define SERVER_PRIVATE_H
 
-#include <stdint.h>
 #include "enet/enet.h"
 #include "global.h"
-#include "server_info.h"
 #include "input.h"
+#include "server_info.h"
+#include <stdint.h>
 
 typedef enum {
     SS_WAITING, /* Waiting for clients */
@@ -29,10 +29,8 @@ typedef struct {
     uint64_t max_frame;
 } Server;
 
-#ifndef SERVER_MAIN
 extern Server server; /* Defined in src/net/server/server.c */
-#endif
 
-int server_change_state(ServerState new);
+int server_state_change(ServerState new);
 
 #endif /* SERVER_PRIVATE_H */

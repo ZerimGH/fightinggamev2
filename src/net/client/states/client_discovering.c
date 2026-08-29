@@ -1,23 +1,25 @@
+/* Mostly copied line for line from https://github.com/cxong/ENetLANChatServer */
+
 #include "client_discovering.h"
-#include <string.h>
 #include "client.h"
 #include "client_private.h"
 #include "discovery.h"
 #include "enet/enet.h"
 #include "server_info.h"
-
-static ENetSocket sock = ENET_SOCKET_NULL;
-static ENetAddress addr = {0};
+#include <string.h>
 
 #define MAX_SERVERS 64
-static ServerInfo infos[MAX_SERVERS] = {{0}};
-static int num_infos = 0;
-static uint32_t times[MAX_SERVERS] = {0};
-
 #define SEND_RATE 1000
-static uint32_t last_send = 0;
-
 #define MAX_AGE 5000
+
+static ENetSocket sock  = ENET_SOCKET_NULL;
+static ENetAddress addr = {0};
+
+static ServerInfo infos[MAX_SERVERS] = {{0}};
+static int num_infos                 = 0;
+static uint32_t times[MAX_SERVERS]   = {0};
+
+static uint32_t last_send = 0;
 
 int client_discovering_enter(void) {
     /* Set up discovery stuff */
@@ -57,9 +59,10 @@ void client_discovering_update(void) {
     if (current_time - last_send >= SEND_RATE) {
         char data = 69;
         ENetBuffer sendbuf;
-        sendbuf.data = &data;
+        sendbuf.data       = &data;
         sendbuf.dataLength = sizeof(data);
-        if (enet_socket_send(sock, &addr, &sendbuf, 1) != (int)sizeof(data)) return;
+        if (enet_socket_send(sock, &addr, &sendbuf, 1) != (int)sizeof(data))
+            return;
         last_send = current_time;
     }
 
@@ -73,7 +76,7 @@ void client_discovering_update(void) {
         ServerInfo new_info;
         ENetBuffer recvbuf;
 
-        recvbuf.data = &new_info;
+        recvbuf.data       = &new_info;
         recvbuf.dataLength = sizeof(new_info);
 
         int recvlen = enet_socket_receive(sock, &reply_addr, &recvbuf, 1);
@@ -82,17 +85,18 @@ void client_discovering_update(void) {
 
             int found = 0;
             for (int i = 0; i < num_infos; i++) {
-                if (infos[i].host == new_info.host && infos[i].port == new_info.port) {
+                if (infos[i].host == new_info.host
+                    && infos[i].port == new_info.port) {
                     infos[i].cur_players = new_info.cur_players;
                     infos[i].max_players = new_info.max_players;
-                    times[i] = current_time;
-                    found = 1;
+                    times[i]             = current_time;
+                    found                = 1;
                     break;
                 }
             }
 
             if (!found && num_infos < MAX_SERVERS) {
-                times[num_infos] = current_time;
+                times[num_infos]   = current_time;
                 infos[num_infos++] = new_info;
             }
         }

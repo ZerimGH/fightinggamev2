@@ -1,8 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <stdint.h>
 #include "server_info.h"
+#include <stdint.h>
 
 /* Initialise the server */
 int server_init(char *name, uint8_t max_players);

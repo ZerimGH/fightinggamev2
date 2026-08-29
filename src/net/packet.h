@@ -1,15 +1,16 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include "enet/enet.h"
 #include "input.h"
+#include <stddef.h>
+#include <stdint.h>
 
-#define INPUT_HIST 5 /* Number of previous frames for the 
-                        server to include in input packets */
+#define INPUT_HIST                                                               \
+    5 /* Number of previous frames for the                                       \
+         server to include in input packets */
 
-enum { 
+enum {
     PACKET_NULL,
     PACKET_SERVER_START,
     PACKET_SERVER_DISCONNECT,
@@ -49,8 +50,8 @@ typedef struct {
     size_t size;
 } __attribute__((packed)) Packet;
 
-/* Create a new packet of a type 
- * data is a pointer to the packet struct, for example a 
+/* Create a new packet of a type
+ * data is a pointer to the packet struct, for example a
  * pointer to a PacketServerStart for type PACKET_SERVER_START */
 Packet packet_create(PacketType type, void *data);
 /* Send a packet to a peer, returns 0 on success */

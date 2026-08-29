@@ -1,18 +1,21 @@
-#include <stdio.h>
-#include <string.h>
+#include "server.h"
 #include "enet/enet.h"
 #include "global.h"
 #include "log.h"
-#include "server.h"
+#include "server_gaming.h"
 #include "server_info.h"
-#define SERVER_MAIN
 #include "server_private.h"
 #include "server_waiting.h"
-#include "server_gaming.h"
+#include <stdio.h>
+#include <string.h>
 
-Server server = {0};
+#define DO_MAGIC                                                                 \
+    X(SS_WAITING, server_waiting)                                                \
+    X(SS_GAMING, server_gaming)
+
+Server server            = {0};
 static ServerState state = (ServerState)-1;
-static int init = 0;
+static int init          = 0;
 
 static int server_state_enter(ServerState new);
 
@@ -34,8 +37,8 @@ int server_init(char *name, uint8_t max_players) {
 
     /* Create server host */
     ENetAddress addr;
-    addr.host = ENET_HOST_ANY;
-    addr.port = ENET_PORT_ANY;
+    addr.host   = ENET_HOST_ANY;
+    addr.port   = ENET_PORT_ANY;
     server.host = enet_host_create(&addr, MAX_PLAYERS, 0, 0, 0);
     if (!server.host) {
         PERROR("Failed to create server host\n");
@@ -50,12 +53,10 @@ int server_init(char *name, uint8_t max_players) {
     /* Initialise client list */
     server.num_clients = 0;
     for (int i = 0; i < MAX_PLAYERS; i++) {
-        server.clients[i] = (ClientInfo){
-            .player_id = (uint8_t)i,
-            .peer = NULL,
-            .latest_input = {.frame = (uint64_t)-1, .input = {.raw = 0}}, 
-            .predict_to = (uint64_t)-1
-        };
+        server.clients[i] = (ClientInfo){.player_id = (uint8_t)i,
+            .peer                                   = NULL,
+            .latest_input = {.frame = (uint64_t)-1, .input = {.raw = 0}},
+            .predict_to   = (uint64_t)-1};
     }
 
     /* Copy server options */
@@ -92,27 +93,10 @@ void server_deinit(void) {
         server.host = NULL;
     }
     state = (ServerState)-1;
-    init = 0;
+    init  = 0;
 }
 
-int server_is_init(void) {
-    return init;
-}
-
-void server_update(void) {
-    if (!init) {
-        PERROR("(warn) update() called when not initialised\n");
-        return;
-    }
-
-    switch (state) {
-        case SS_WAITING: server_waiting_update(); break;
-        case SS_GAMING: server_gaming_update(); return;
-        default: return;
-    }
-
-    enet_host_flush(server.host);
-}
+int server_is_init(void) { return init; }
 
 ServerInfo server_get_info(void) {
     if (!init) {
@@ -126,8 +110,8 @@ ServerInfo server_get_info(void) {
     }
 
     ServerInfo info = {0};
-    info.host = server.host->address.host;
-    info.port = server.host->address.port;
+    info.host       = server.host->address.host;
+    info.port       = server.host->address.port;
 
     snprintf(info.name, sizeof(info.name), "%s", server.name);
 
@@ -137,20 +121,27 @@ ServerInfo server_get_info(void) {
     return info;
 }
 
+uint8_t server_count_clients(void) {
+    if (state != SS_GAMING) return server.num_clients;
+    return server_gaming_count_clients();
+}
+
 /* State machine stuff */
 static void server_state_exit(void) {
-    switch (state) {
-        case SS_WAITING: server_waiting_exit(); return;
-        case SS_GAMING: server_gaming_exit(); return;
-    }
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): PREFIX##_exit(); return;
+    switch (state) { DO_MAGIC }
+#undef X
 }
 
 static int server_state_enter(ServerState new) {
     int stat = 1;
-    switch (new) {
-        case SS_WAITING: stat = server_waiting_enter(); break;
-        case SS_GAMING: stat = server_gaming_enter(); break;
-    }
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): stat = PREFIX##_enter(); break;
+
+    switch (new) { DO_MAGIC }
+#undef X
+
     if (stat) {
         state = (ServerState)-1; /* Not sure how to handle this */
         return 1;
@@ -159,12 +150,22 @@ static int server_state_enter(ServerState new) {
     return 0;
 }
 
-int server_change_state(ServerState new) {
-    server_state_exit();
-    return server_state_enter(new);
+void server_update(void) {
+    if (!init) {
+        PERROR("(warn) update() called when not initialised\n");
+        return;
+    }
+
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): PREFIX##_update(); break;
+
+    switch (state) { DO_MAGIC }
+#undef X
+
+    if (state != SS_GAMING) enet_host_flush(server.host);
 }
 
-uint8_t server_count_clients(void) {
-    if (state != SS_GAMING) return server.num_clients;
-    return server_gaming_count_clients();
+int server_state_change(ServerState new) {
+    server_state_exit();
+    return server_state_enter(new);
 }

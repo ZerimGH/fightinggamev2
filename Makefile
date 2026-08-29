@@ -1,7 +1,6 @@
 TARGET_NAME = main
 OS ?= linux
 
-CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -O3
 
 BUILD_DIR_NAME = build

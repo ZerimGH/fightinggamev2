@@ -1,9 +1,9 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include <stdint.h>
-#include "server_info.h"
 #include "input.h"
+#include "server_info.h"
+#include <stdint.h>
 
 /* Initialise the client */
 int client_init(void);
@@ -11,7 +11,7 @@ int client_init(void);
 void client_deinit(void);
 /* Check if the client is initialised */
 int client_is_init(void);
-/* Get a list of servers found by the client 
+/* Get a list of servers found by the client
  * Returns number of servers written */
 int client_get_servers(ServerInfo *buf, int buf_len);
 /* Join a server */
@@ -39,6 +39,5 @@ int client_is_connected(uint8_t player_id, uint64_t frame);
 uint8_t client_get_id(void);
 /* Get the number of players client started with */
 uint8_t client_get_num_players(void);
-
 
 #endif /* CLIENT_H */

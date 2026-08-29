@@ -1,14 +1,19 @@
 #include "client.h"
 #include "client_discovering.h"
+#include "client_gaming.h"
 #include "client_private.h"
 #include "client_waiting.h"
-#include "client_gaming.h"
 #include "enet/enet.h"
 #include "log.h"
 
-Client client = {0};
+#define DO_MAGIC                                                                 \
+    X(CS_DISCOVERING, client_discovering)                                        \
+    X(CS_WAITING, client_waiting)                                                \
+    X(CS_GAMING, client_gaming)
+
+Client client            = {0};
 static ClientState state = (ClientState)-1;
-static int init = 0;
+static int init          = 0;
 
 static int client_state_enter(ClientState new);
 
@@ -47,19 +52,17 @@ void client_deinit(void) {
 
     if (client.host) enet_host_destroy(client.host);
     client.host = NULL;
-    init = 0;
+    init        = 0;
 }
 
-int client_is_init(void) {
-    return init;
-}
+int client_is_init(void) { return init; }
 
 int client_get_servers(ServerInfo *buf, int buf_len) {
     if (!init || state != CS_DISCOVERING) return 0;
     return client_discovering_get_servers(buf, buf_len);
 }
 
-int client_change_state(ClientState new);
+int client_state_change(ClientState new);
 
 int client_join(uint32_t host, uint16_t port) {
     if (!init) {
@@ -74,11 +77,11 @@ int client_join(uint32_t host, uint16_t port) {
     } else {
         addr.host = host;
     }
-    addr.port = port;
+    addr.port   = port;
     client.peer = enet_host_connect(client.host, &addr, 1, 0);
     if (!client.peer) return 1;
 
-    if (client_change_state(CS_WAITING)) {
+    if (client_state_change(CS_WAITING)) {
         PERROR("Failed to enter waiting state\n");
         enet_peer_disconnect_now(client.peer, 0);
         return 1;
@@ -87,61 +90,14 @@ int client_join(uint32_t host, uint16_t port) {
     return 0;
 }
 
-void client_update(void) {
-    if (!init) {
-        PERROR("(warn) update() called when not initialised\n");
-        return;
-    }
-
-    switch (state) {
-        case CS_DISCOVERING: client_discovering_update(); break;
-        case CS_WAITING: client_waiting_update(); break;
-        case CS_GAMING: client_gaming_update(); break;
-    }
-    enet_host_flush(client.host);
-}
-
-int client_disconnected(void) {
-    return !client.peer;
-}
+int client_disconnected(void) { return !client.peer; }
 
 void client_disconnect(void) {
     if (client.peer) enet_peer_disconnect_now(client.peer, 0);
     client.peer = NULL;
 }
 
-int client_started(void) {
-    return state == CS_GAMING;
-}
-
-/* State machine stuff */
-static void client_state_exit(void) {
-    switch (state) {
-        case CS_DISCOVERING: client_discovering_exit(); return;
-        case CS_WAITING: client_waiting_exit(); return;
-        case CS_GAMING: client_gaming_exit(); return;
-    }
-}
-
-static int client_state_enter(ClientState new) {
-    int stat = 1;
-    switch (new) {
-        case CS_DISCOVERING: stat = client_discovering_enter(); break;
-        case CS_WAITING: stat = client_waiting_enter(); break;
-        case CS_GAMING: stat = client_gaming_enter(); break;
-    }
-    if (stat) {
-        state = (ClientState)-1; /* Not sure how to handle this */
-        return 1;
-    }
-    state = new;
-    return 0;
-}
-
-int client_change_state(ClientState new) {
-    client_state_exit();
-    return client_state_enter(new);
-}
+int client_started(void) { return state == CS_GAMING; }
 
 int client_get_input(uint8_t player_id, uint64_t frame, Input *input) {
     if (state != CS_GAMING) return 1;
@@ -168,3 +124,45 @@ int client_connection_confirmed(void) {
     return client_waiting_connection_confirmed();
 }
 
+/* State machine stuff */
+void client_update(void) {
+    if (!init) {
+        PERROR("(warn) update() called when not initialised\n");
+        return;
+    }
+
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): PREFIX##_update(); break;
+
+    switch (state) { DO_MAGIC }
+#undef X
+    enet_host_flush(client.host);
+}
+
+static void client_state_exit(void) {
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): PREFIX##_exit(); return;
+    switch (state) { DO_MAGIC }
+#undef X
+}
+
+static int client_state_enter(ClientState new) {
+    int stat = 1;
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): stat = PREFIX##_enter(); break;
+
+    switch (new) { DO_MAGIC }
+#undef X
+
+    if (stat) {
+        state = (ClientState)-1; /* Not sure how to handle this */
+        return 1;
+    }
+    state = new;
+    return 0;
+}
+
+int client_state_change(ClientState new) {
+    client_state_exit();
+    return client_state_enter(new);
+}
