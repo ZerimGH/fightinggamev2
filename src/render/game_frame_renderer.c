@@ -1,19 +1,14 @@
-#include "assets.h"
 #include "game_frame.h"
-#include "log.h"
-#include "player.h"
+#include "letterbox.h"
+#include "player_renderer.h"
 #include "raylib/raylib.h"
 #include "sprite_sheet_manager.h"
-#include "sprite_sheets.h"
 #include "world.h"
+#include <stdio.h>
 
 int game_frame_renderer_init(void) {
     if (ssm_init()) return 1;
-    player_idle_sprite  = ssm_load(".png", idle_png, sizeof(idle_png), 1, 4);
-    player_walk_sprite  = ssm_load(".png", walk_png, sizeof(walk_png), 1, 3);
-    player_punch_sprite = ssm_load(".png", punch_png, sizeof(punch_png), 1, 3);
-    if (player_walk_sprite == -1 || player_idle_sprite == -1
-        || player_punch_sprite == -1) {
+    if (player_renderer_init()) {
         ssm_deinit();
         return 1;
     }
@@ -23,55 +18,11 @@ int game_frame_renderer_init(void) {
 
 void game_frame_render(GameFrame *gf) {
     if (!gf) { return; }
-
-    int screen_w = GetScreenWidth();
-    int screen_h = GetScreenHeight();
-
-    float w_aspect = (float)WORLD_WIDTH / (float)WORLD_HEIGHT;
-    float s_aspect = (float)screen_w / (float)screen_h;
-
-    float scale_x, scale_y, offset_x, offset_y;
-    offset_x = 0.f;
-    offset_y = 0.f;
-
-    float w_screen_w, w_screen_h;
-
-    if (s_aspect > w_aspect) {
-        w_screen_h = screen_h;
-        w_screen_w = screen_h * w_aspect;
-        offset_x   = (screen_w - w_screen_w) * 0.5f;
-    } else {
-        w_screen_w = screen_w;
-        w_screen_h = screen_w / w_aspect;
-        offset_y   = (screen_h - w_screen_h) * 0.5f;
-    }
-    scale_x = w_screen_w / (float)WORLD_WIDTH;
-    scale_y = w_screen_h / (float)WORLD_HEIGHT;
-
     ClearBackground(DARKGRAY);
-
-    DrawRectangle(
-        (int)offset_x, (int)offset_y, (int)w_screen_w, (int)w_screen_h, BLACK);
-
-    for (unsigned int i = 0; i < gf->num_players; i++) {
-        Player *p = &gf->players[i];
-        float rx, ry, rw, rh;
-        rx = p->x * scale_x + offset_x;
-        ry = (WORLD_HEIGHT - p->y - PLAYER_HEIGHT) * scale_y + offset_y;
-        rw = (float)PLAYER_WIDTH * scale_x;
-        rh = (float)PLAYER_HEIGHT * scale_y;
-
-        int anim_sheet = player_idle_sprite;
-        switch (p->state) {
-        case PLAYER_STATE_IDLE:  anim_sheet = player_idle_sprite; break;
-        case PLAYER_STATE_WALK:  anim_sheet = player_walk_sprite; break;
-        case PLAYER_STATE_PUNCH: anim_sheet = player_punch_sprite; break;
-        }
-
-        Color col = p->connected ? WHITE : (Color){150, 150, 150, 128};
-        ssm_render(
-            anim_sheet, rx, ry, rw, rh, p->anim_frame, p->facing != 1, col);
-    }
+    float sx, sy, sw, sh;
+    letterbox_rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT, &sx, &sy, &sw, &sh);
+    DrawRectangle((int)sx, (int)sy, (int)sw, (int)sh, BLACK);
+    for (int i = 0; i < gf->num_players; i++) { player_render(&gf->players[i]); }
 }
 
 void game_frame_renderer_deinit(void) { ssm_deinit(); }

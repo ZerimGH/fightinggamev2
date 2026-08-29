@@ -1,5 +1,5 @@
-/* idle.png */
-unsigned char idle_png[2770]  = {0x89,
+/* player_idle.png */
+unsigned char player_idle_png[2770]  = {0x89,
     0x50,
     0x4e,
     0x47,
@@ -2769,8 +2769,8 @@ unsigned char idle_png[2770]  = {0x89,
     0x42,
     0x60,
     0x82};
-/* punch.png */
-unsigned char punch_png[2475] = {0x89,
+/* player_punch.png */
+unsigned char player_punch_png[2475] = {0x89,
     0x50,
     0x4e,
     0x47,
@@ -5245,8 +5245,8 @@ unsigned char punch_png[2475] = {0x89,
     0x42,
     0x60,
     0x82};
-/* walk.png */
-unsigned char walk_png[2402]  = {0x89,
+/* player_walk.png */
+unsigned char player_walk_png[2402]  = {0x89,
     0x50,
     0x4e,
     0x47,

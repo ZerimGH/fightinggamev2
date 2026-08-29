@@ -3,6 +3,14 @@ ASSETS = $(wildcard *.png)
 TARGET_C = ../src/render/assets.c
 TARGET_H = ../src/render/assets.h
 
+.PHONY: all
+all: $(TARGET_C) $(TARGET_H)
+
+.PHONY: clean
+clean:
+	rm -f $(TARGET_C) $(TARGET_H)
+	make -C ./file2c clean
+
 $(FILE2C):
 	make -C ./file2c all
 
@@ -14,11 +22,3 @@ $(TARGET_H): $(FILE2C)
 	echo '#define ASSETS_H' >> $(TARGET_H)
 	$(FILE2C) -h $(ASSETS) >> $(TARGET_H)
 	echo '#endif /* ASSETS_H */' >> $(TARGET_H)
-
-.PHONY: all
-all: $(TARGET_C) $(TARGET_H)
-
-.PHONY: clean
-clean:
-	rm -f $(TARGET_C) $(TARGET_H)
-	make -C ./file2c clean
