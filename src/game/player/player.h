@@ -1,11 +1,12 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "aabb.h"
 #include "input.h"
 #include <stdint.h>
 
-#define PLAYER_WIDTH (96 * 2)
-#define PLAYER_HEIGHT (63 * 2)
+#define PLAYER_RENDER_WIDTH (96 * 2)
+#define PLAYER_RENDER_HEIGHT (63 * 2)
 
 /* Unfortunately, player states cannot be in player_private.h
  * as they need to be referenced for GameFrame.players */
@@ -15,9 +16,9 @@ typedef enum {
     PLAYER_STATE_PUNCH
 } PlayerState;
 
-typedef struct {
-    uint16_t x, y;
-
+typedef struct Player {
+    AABB collision_box;
+    int16_t x, y;
     PlayerState state;
     uint64_t frames;
     uint64_t anim_frame;

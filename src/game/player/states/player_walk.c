@@ -29,7 +29,7 @@ void player_walk_update(Player *p) {
     if (p->facing < 0) {
         if (p->x >= PLAYER_SPEED) { p->x -= PLAYER_SPEED; }
     } else if (p->facing > 0) {
-        if (p->x + PLAYER_WIDTH + PLAYER_SPEED <= WORLD_WIDTH) {
+        if (p->x + PLAYER_RENDER_WIDTH + PLAYER_SPEED <= WORLD_WIDTH) {
             p->x += PLAYER_SPEED;
         }
     }

@@ -37,8 +37,20 @@ static int get_sprite(Player *p) {
 void player_render(Player *p) {
     if (!p) return;
     float sx, sy, sw, sh;
-    letterbox_rect(p->x, p->y, PLAYER_WIDTH, PLAYER_HEIGHT, &sx, &sy, &sw, &sh);
+    letterbox_rect(p->x,
+        p->y,
+        PLAYER_RENDER_WIDTH,
+        PLAYER_RENDER_HEIGHT,
+        &sx,
+        &sy,
+        &sw,
+        &sh);
     int sprite = get_sprite(p);
     Color col  = p->connected ? WHITE : (Color){150, 150, 150, 128};
     ssm_render(sprite, sx, sy, sw, sh, p->anim_frame, p->facing != 1, col);
+
+    AABB aabb = AABB_relative(&p->collision_box, p);
+
+    letterbox_rect(aabb.x, aabb.y, aabb.w, aabb.h, &sx, &sy, &sw, &sh);
+    DrawRectangle((int)sx, (int)sy, (int)sw, (int)sh, (Color){255, 0, 0, 64});
 }

@@ -1,4 +1,5 @@
 #include "player.h"
+#include "aabb.h"
 #include "global.h"
 #include "input.h"
 #include "player_idle.h"
@@ -6,6 +7,7 @@
 #include "player_punch.h"
 #include "player_walk.h"
 #include "world.h"
+#include <stdint.h>
 
 #define ANIM_FRAMES 12
 
@@ -15,9 +17,13 @@
     X(PLAYER_STATE_PUNCH, player_punch)
 
 void player_init(Player *p, int idx, int tot) {
-    uint16_t spacing = (WORLD_WIDTH - PLAYER_WIDTH) / (tot - 1);
+    int16_t spacing  = (WORLD_WIDTH - PLAYER_RENDER_WIDTH) / (tot - 1);
     p->x             = spacing * idx;
     p->y             = 0;
+    p->collision_box = (AABB){PLAYER_RENDER_WIDTH / 2 - PLAYER_RENDER_WIDTH / 10,
+        0,
+        PLAYER_RENDER_WIDTH / 6,
+        PLAYER_RENDER_HEIGHT * 2 / 3};
     p->state         = PLAYER_STATE_IDLE;
     p->frames        = 0;
     p->facing        = 1;
