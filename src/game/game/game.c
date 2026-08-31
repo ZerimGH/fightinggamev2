@@ -1,5 +1,6 @@
 #include "game.h"
 #include "game_frame.h"
+#include "game_frame_renderer.h"
 #include "global.h"
 #include "input_manager.h"
 #include "log.h"
@@ -107,7 +108,7 @@ void game_tick(void) {
     }
 
     if (rollback) {
-        for (size_t i = rollback_frame; i < game.head; i++) {
+        for (size_t i = rollback_frame; i <= game.head; i++) {
             size_t cur  = i % MAX_ROLLBACK;
             size_t next = (i + 1) % MAX_ROLLBACK;
 

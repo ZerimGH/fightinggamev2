@@ -26,6 +26,7 @@ void player_init(Player *p, int idx, int tot) {
         PLAYER_RENDER_HEIGHT * 2 / 3};
     p->state         = PLAYER_STATE_IDLE;
     p->frames        = 0;
+    p->anim_frame    = 0;
     p->facing        = 1;
     p->connected     = 1;
 }

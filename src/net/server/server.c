@@ -5,12 +5,14 @@
 #include "server_gaming.h"
 #include "server_info.h"
 #include "server_private.h"
+#include "server_sync.h"
 #include "server_waiting.h"
 #include <stdio.h>
 #include <string.h>
 
 #define DO_MAGIC                                                                 \
     X(SERVER_STATE_WAITING, server_waiting)                                      \
+    X(SERVER_STATE_SYNC, server_sync)                                            \
     X(SERVER_STATE_GAMING, server_gaming)
 
 Server server            = {0};
@@ -56,7 +58,8 @@ int server_init(char *name, uint8_t max_players) {
         server.clients[i] = (ClientInfo){.player_id = (uint8_t)i,
             .peer                                   = NULL,
             .latest_input = {.frame = (uint64_t)-1, .input = {.raw = 0}},
-            .predict_to   = (uint64_t)-1};
+            .predict_to   = (uint64_t)-1,
+            .delay        = 0};
     }
 
     /* Copy server options */

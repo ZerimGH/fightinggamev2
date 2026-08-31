@@ -6,16 +6,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define INPUT_HIST                                                               \
-    5 /* Number of previous frames for the                                       \
-         server to include in input packets */
-
 enum {
     PACKET_NULL,
     PACKET_SERVER_START,
     PACKET_SERVER_DISCONNECT,
     PACKET_CLIENT_INPUT,
-    PACKET_SERVER_INPUT
+    PACKET_SERVER_INPUT,
+    PACKET_SERVER_SYNC,
+    PACKET_CLIENT_SYNC
 };
 
 typedef uint8_t PacketType;
@@ -23,6 +21,7 @@ typedef uint8_t PacketType;
 typedef struct {
     uint8_t id;
     uint8_t num_players;
+    uint32_t delay;
 } __attribute__((packed)) PacketServerStart;
 
 typedef struct {
@@ -40,12 +39,22 @@ typedef struct {
 } __attribute__((packed)) PacketClientInput;
 
 typedef struct {
+    uint8_t unused;
+} __attribute__((packed)) PacketServerSync;
+
+typedef struct {
+    uint8_t unused;
+} __attribute__((packed)) PacketClientSync;
+
+typedef struct {
     PacketType type;
     union {
         PacketServerStart server_start;
         PacketServerDisconnect server_disconnect;
         PacketServerInput server_input;
         PacketClientInput client_input;
+        PacketServerSync server_sync;
+        PacketClientSync client__sync;
     } u;
     size_t size;
 } __attribute__((packed)) Packet;

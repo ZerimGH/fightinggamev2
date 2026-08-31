@@ -9,6 +9,7 @@
 
 typedef enum {
     SERVER_STATE_WAITING, /* Waiting for clients */
+    SERVER_STATE_SYNC,    /* Calculating client delay */
     SERVER_STATE_GAMING   /* Game has started */
 } ServerState;
 
@@ -18,6 +19,7 @@ typedef struct {
 
     TimedInput latest_input;
     uint64_t predict_to;
+    uint32_t delay;
 } ClientInfo;
 
 typedef struct {

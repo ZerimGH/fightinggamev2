@@ -17,7 +17,5 @@ typedef struct {
 void game_frame_init(GameFrame *gs);
 void game_frame_apply_input(GameFrame *gs, uint8_t player_id, Input input);
 void game_frame_finalise(GameFrame *gs);
-void game_frame_render(GameFrame *gs);
-uint64_t hash_game_frame(GameFrame *gs);
 
 #endif /* GAME_FRAME_H */

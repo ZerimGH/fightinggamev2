@@ -6,7 +6,9 @@
     X(PACKET_SERVER_START, PacketServerStart)                                    \
     X(PACKET_SERVER_DISCONNECT, PacketServerDisconnect)                          \
     X(PACKET_SERVER_INPUT, PacketServerInput)                                    \
-    X(PACKET_CLIENT_INPUT, PacketClientInput)
+    X(PACKET_CLIENT_INPUT, PacketClientInput)                                    \
+    X(PACKET_SERVER_SYNC, PacketServerSync)                                      \
+    X(PACKET_CLIENT_SYNC, PacketClientSync)
 
 static size_t packet_type_size(PacketType type) {
 #define X(TYPE, STRUCT)                                                          \

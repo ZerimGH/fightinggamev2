@@ -113,9 +113,10 @@ void server_waiting_update(void) {
         }
     }
 
-    /* Start the game if max_clients reached */
+    /* Sync all clients, and then start game if all
+     * max clients connected */
     if (server.num_clients >= server.max_clients
         || server.num_clients >= MAX_PLAYERS) {
-        server_state_change(SERVER_STATE_GAMING);
+        server_state_change(SERVER_STATE_SYNC);
     }
 }

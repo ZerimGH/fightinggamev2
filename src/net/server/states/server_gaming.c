@@ -38,6 +38,7 @@ int server_gaming_enter(void) {
     for (uint8_t id = 0; id < server.num_clients; id++) {
         ClientInfo *client = &server.clients[id];
         start_packet.id    = client->player_id;
+        start_packet.delay = client->delay;
         Packet packet      = packet_create(PACKET_SERVER_START, &start_packet);
         if (packet.type == PACKET_NULL) {
             PERROR("Failed to create start packet\n");

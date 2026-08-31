@@ -13,8 +13,7 @@ void game_frame_init(GameFrame *gf) {
     gf->num_players = input_manager_num_players();
 
     for (unsigned int i = 0; i < gf->num_players; i++) {
-        Player *p = &gf->players[i];
-        player_init(p, i, gf->num_players);
+        player_init(&gf->players[i], i, gf->num_players);
         gf->inputs[i].raw      = 0;
         gf->last_inputs[i].raw = 0;
     }
