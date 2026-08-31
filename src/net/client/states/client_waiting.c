@@ -32,10 +32,7 @@ static void handle_receive(ENetEvent event) {
     if (packet.type == PACKET_SERVER_START) {
         client.num_players = packet.u.server_start.num_players;
         client.player_id   = packet.u.server_start.id;
-        /* Delay start as requested by server */
-        /* TODO: Do this better */
-        uint32_t start     = enet_time_get();
-        while (enet_time_get() <= start + packet.u.server_start.delay);
+        client.delay       = packet.u.server_start.delay;
         if (client_state_change(CLIENT_STATE_GAMING)) {
             PERROR("Failed to enter gaming state\n");
             client_disconnect();

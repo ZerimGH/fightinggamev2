@@ -39,5 +39,7 @@ int client_is_connected(uint8_t player_id, uint64_t frame);
 uint8_t client_get_id(void);
 /* Get the number of players client started with */
 uint8_t client_get_num_players(void);
+/* Get the delay time requested by the server */
+uint32_t client_get_delay(void);
 
 #endif /* CLIENT_H */

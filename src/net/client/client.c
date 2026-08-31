@@ -62,6 +62,11 @@ int client_get_servers(ServerInfo *buf, int buf_len) {
     return client_discovering_get_servers(buf, buf_len);
 }
 
+uint32_t client_get_delay(void) {
+    if (!init || state != CLIENT_STATE_GAMING) return 0;
+    return client.delay;
+}
+
 int client_state_change(ClientState new);
 
 int client_join(uint32_t host, uint16_t port) {

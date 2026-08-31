@@ -28,6 +28,7 @@ typedef struct {
     uint8_t num_players;
     PlayerInfo players[MAX_PLAYERS];
 
+    uint32_t delay;
     uint8_t player_id;
 } Client;
 
