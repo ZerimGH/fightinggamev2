@@ -28,7 +28,7 @@ typedef struct {
 static InputManager im = {0};
 static int init        = 0;
 static int over        = 1;
-static float init_time = 0;;
+static float init_time = 0;
 
 static void input_manager_finish(void) {
     if (!init) return;
@@ -157,7 +157,7 @@ void input_manager_tick(void) {
         client_update();
 
         /* Don't simulate until delay is over */
-        if (GetTime() <= init_time + (float)client_get_delay()) break;
+        if (GetTime() <= init_time + (float)client_get_delay()) return;
         /* Get local player's inputs */
         uint64_t frame = im.frame;
         Input input_a;
