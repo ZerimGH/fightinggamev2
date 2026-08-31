@@ -68,8 +68,8 @@ int input_manager_init(InputManagerType type) {
     }
     im.frame = 0;
 
-    init = 1;
-    over = 0;
+    init      = 1;
+    over      = 0;
     init_time = GetTime();
     return 0;
 }
@@ -153,26 +153,19 @@ void input_manager_tick(void) {
         break;
     }
     case IM_LAN: {
+        /* Update server if running here */
+        if (server_is_init()) {
+            server_update();
+            /*
+            if (server_count_clients() < 2) {
+                input_manager_finish();
+                return;
+            }
+            */
+        }
+
         /* Update client */
         client_update();
-
-        /* Don't simulate until delay is over */
-        if (GetTime() <= init_time + (float)client_get_delay()) return;
-        /* Get local player's inputs */
-        uint64_t frame = im.frame;
-        Input input_a;
-        input_a.raw          = 0;
-        input_a.fields.left  = IsKeyDown(KEY_A);
-        input_a.fields.right = IsKeyDown(KEY_D);
-        input_a.fields.punch = IsKeyDown(KEY_E);
-        input_a.fields.kick  = IsKeyDown(KEY_Q);
-        TimedInput ti_a      = {frame, input_a};
-        /* Send to server */
-        if (client_send_input(ti_a)) {
-            PERROR("Failed to send local inputs to server\n");
-            input_manager_finish();
-            return;
-        }
 
         /* Update all players' inputs from client */
         for (uint8_t i = 0; i < im.num_players; i++) {
@@ -191,6 +184,7 @@ void input_manager_tick(void) {
                     }
                 }
             }
+
             InputBuf *player = &im.players[i];
             /* Check for new inputs */
             uint64_t p_frame = player->head;
@@ -208,16 +202,25 @@ void input_manager_tick(void) {
             }
         }
 
-        /* Update server if running here */
-        if (server_is_init()) {
-            server_update();
-            /*
-            if (server_count_clients() < 2) {
-                input_manager_finish();
-                return;
-            }
-            */
+        /* Don't send local inputs until delay is over */
+        if (GetTime() <= init_time + (float)client_get_delay()) return;
+
+        /* Get local player's inputs */
+        uint64_t frame = im.frame;
+        Input input_a;
+        input_a.raw          = 0;
+        input_a.fields.left  = IsKeyDown(KEY_A);
+        input_a.fields.right = IsKeyDown(KEY_D);
+        input_a.fields.punch = IsKeyDown(KEY_E);
+        input_a.fields.kick  = IsKeyDown(KEY_Q);
+        TimedInput ti_a      = {frame, input_a};
+        /* Send to server */
+        if (client_send_input(ti_a)) {
+            PERROR("Failed to send local inputs to server\n");
+            input_manager_finish();
+            return;
         }
+
         break;
     }
     default:
@@ -238,7 +241,7 @@ int input_manager_disconnected(uint8_t player_id) {
     return 1;
 }
 
-int input_manager_over() {
+int input_manager_over(void) {
     if (!init) return 1;
     return over;
 }
