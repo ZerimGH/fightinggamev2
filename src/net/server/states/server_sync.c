@@ -79,12 +79,12 @@ void server_sync_update(void) {
     if (received == server.num_clients) {
         uint32_t delay_max = 0;
         for (int i = 0; i < server.num_clients; i++) {
-            uint32_t delay          = (recv_times[i] - send_times[i]) / 2;
+            uint32_t delay = (recv_times[i] - send_times[i]) / 2;
             if (delay > delay_max) delay_max = delay;
         }
 
         for (int i = 0; i < server.num_clients; i++) {
-            uint32_t delay = (recv_times[i] - send_times[i]) / 2;
+            uint32_t delay          = (recv_times[i] - send_times[i]) / 2;
             server.clients[i].delay = delay_max - delay;
         }
         server_state_change(SERVER_STATE_GAMING);
