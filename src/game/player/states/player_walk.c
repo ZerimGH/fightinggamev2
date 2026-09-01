@@ -26,11 +26,8 @@ void player_walk_apply_inputs(Player *p, Input inputs, Input linputs) {
 }
 
 void player_walk_update(Player *p) {
-    if (p->facing < 0) {
-        if (p->x >= PLAYER_SPEED) { p->x -= PLAYER_SPEED; }
-    } else if (p->facing > 0) {
-        if (p->x + PLAYER_RENDER_WIDTH + PLAYER_SPEED <= WORLD_WIDTH) {
-            p->x += PLAYER_SPEED;
-        }
-    }
+    if (p->facing < 0) p->x -= PLAYER_SPEED;
+    else if (p->facing > 0) p->x += PLAYER_SPEED;
 }
+
+void player_walk_do_collisions(Player *p1, Player *p2) { return; }

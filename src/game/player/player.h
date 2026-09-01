@@ -30,5 +30,6 @@ void player_init(Player *p, int idx, int tot);
 void player_update(Player *p);
 void player_apply_inputs(Player *p, Input inputs, Input linputs);
 void player_state_change(Player *p, PlayerState new);
+void player_do_collisions(Player *p1, Player *p2);
 
 #endif /* PLAYER_H */

@@ -19,3 +19,5 @@ void player_punch_apply_inputs(Player *p, Input inputs, Input linputs) {
 void player_punch_update(Player *p) {
     if (p->anim_frame >= 3) player_state_change(p, PLAYER_STATE_IDLE);
 }
+
+void player_punch_do_collisions(Player *p1, Player *p2) { return; }

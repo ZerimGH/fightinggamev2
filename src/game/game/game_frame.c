@@ -39,5 +39,24 @@ void game_frame_finalise(GameFrame *gf) {
         player_update(p);
     }
 
+    /*
+    for (uint8_t i = 0; i < gf->num_players - 1; i++) {
+        Player *p1 = &gf->players[i];
+        for (uint8_t j = i + 1; j < gf->num_players; j++) {
+            Player *p2 = &gf->players[j];
+            player_do_collisions(p1, p2);
+        }
+    }
+    */
+
+    for (uint8_t i = 0; i < gf->num_players; i++) {
+        Player *p1 = &gf->players[i];
+        for (uint8_t j = 0; j < gf->num_players; j++) {
+            if (i == j) continue;
+            Player *p2 = &gf->players[j];
+            player_do_collisions(p1, p2);
+        }
+    }
+
     gf->frame_no++;
 }

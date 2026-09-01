@@ -76,3 +76,14 @@ void player_state_change(Player *p, PlayerState new) {
     player_state_exit(p);
     player_state_enter(p, new);
 }
+
+void player_do_collisions(Player *p1, Player *p2) {
+#define X(STATE, PREFIX)                                                         \
+    case (STATE): PREFIX##_do_collisions(p1, p2); break;
+    switch (p1->state) { DO_MAGIC }
+#undef X
+
+    AABB aabb = AABB_relative(&p1->collision_box, p1);
+    if (aabb.x < 0) p1->x -= aabb.x;
+    if (aabb.x + aabb.w > WORLD_WIDTH) p1->x -= ((aabb.x + aabb.w) - WORLD_WIDTH);
+}
