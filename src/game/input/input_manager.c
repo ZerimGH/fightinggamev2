@@ -153,19 +153,11 @@ void input_manager_tick(void) {
         break;
     }
     case IM_LAN: {
-        /* Update server if running here */
-        if (server_is_init()) {
-            server_update();
-            /*
-            if (server_count_clients() < 2) {
-                input_manager_finish();
-                return;
-            }
-            */
-        }
-
         /* Update client */
         client_update();
+
+        /* Update server if running here */
+        if (server_is_init()) server_update();
 
         /* Update all players' inputs from client */
         for (uint8_t i = 0; i < im.num_players; i++) {
