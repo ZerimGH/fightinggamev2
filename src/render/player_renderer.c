@@ -9,7 +9,7 @@
 #define DO_MAGIC                                                                 \
     X(PLAYER_STATE_IDLE, player_idle, 1, 4)                                      \
     X(PLAYER_STATE_WALK, player_walk, 1, 3)                                      \
-    X(PLAYER_STATE_PUNCH, player_punch, 1, 3) \
+    X(PLAYER_STATE_PUNCH, player_punch, 1, 3)                                    \
     X(PLAYER_STATE_HURT, player_hurt, 1, 4)
 
 #define X(UNUSED, PREFIX, UNUSED2, UNUSED3) static int PREFIX##_sprite = -1;

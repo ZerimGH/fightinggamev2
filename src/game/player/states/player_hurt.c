@@ -2,11 +2,9 @@
 #include "player.h"
 #include "player_private.h"
 
-void player_hurt_enter(Player *p) {
-}
+void player_hurt_enter(Player *p) {}
 
-void player_hurt_exit(Player *p) {
-}
+void player_hurt_exit(Player *p) {}
 
 void player_hurt_apply_inputs(Player *p, Input inputs, Input linputs) {}
 

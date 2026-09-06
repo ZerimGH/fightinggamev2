@@ -2,13 +2,9 @@
 #include "player.h"
 #include "player_private.h"
 
-void player_punch_enter(Player *p) {
-    p->punch_box.active = 0;
-}
+void player_punch_enter(Player *p) { p->punch_box.active = 0; }
 
-void player_punch_exit(Player *p) {
-    p->punch_box.active = 0;
-}
+void player_punch_exit(Player *p) { p->punch_box.active = 0; }
 
 void player_punch_apply_inputs(Player *p, Input inputs, Input linputs) {
     /*

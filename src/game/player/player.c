@@ -3,11 +3,11 @@
 #include "global.h"
 #include "input.h"
 #include "log.h"
+#include "player_hurt.h"
 #include "player_idle.h"
 #include "player_private.h"
 #include "player_punch.h"
 #include "player_walk.h"
-#include "player_hurt.h"
 #include "world.h"
 #include <stdint.h>
 
@@ -98,7 +98,9 @@ void player_do_collisions(Player *p1, Player *p2) {
     if (p1->state != PLAYER_STATE_HURT) {
         AABB a = AABB_relative(&p1->collision_box, p1);
         AABB b = AABB_relative(&p2->punch_box, p2);
-        if (AABB_check_AABB(&a, &b)) { player_state_change(p1, PLAYER_STATE_HURT); }
+        if (AABB_check_AABB(&a, &b)) {
+            player_state_change(p1, PLAYER_STATE_HURT);
+        }
     }
 
     AABB aabb = AABB_relative(&p1->collision_box, p1);

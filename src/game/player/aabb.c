@@ -22,9 +22,9 @@ AABB AABB_relative(AABB *a, Player *p) {
 
     if (p->facing == 1) res.x = p->x + a->x;
     else res.x = p->x + PLAYER_RENDER_WIDTH - a->x - a->w;
-    res.y = p->y + a->y;
-    res.w = a->w;
-    res.h = a->h;
+    res.y      = p->y + a->y;
+    res.w      = a->w;
+    res.h      = a->h;
     res.active = a->active;
     return res;
 }
