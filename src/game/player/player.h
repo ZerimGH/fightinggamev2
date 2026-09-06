@@ -25,6 +25,7 @@ typedef struct Player {
     uint64_t frames;
     uint64_t anim_frame;
     int8_t facing;
+    int8_t knockback_dir;
     int connected;
 } Player;
 
