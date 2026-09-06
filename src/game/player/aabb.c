@@ -3,11 +3,13 @@
 #include <stdint.h>
 
 int AABB_check_point(AABB *a, int16_t x, int16_t y) {
+    if (!a->active) return 0;
     if (!a) return 0;
     return x >= a->x && y >= a->y && x <= a->x + a->w && y <= a->y + a->h;
 }
 
 int AABB_check_AABB(AABB *a, AABB *b) {
+    if (!a->active || !b->active) return 0;
     return AABB_check_point(a, b->x, b->y)
            || AABB_check_point(a, b->x + b->w, b->y)
            || AABB_check_point(a, b->x, b->y + b->h)
@@ -23,5 +25,6 @@ AABB AABB_relative(AABB *a, Player *p) {
     res.y = p->y + a->y;
     res.w = a->w;
     res.h = a->h;
+    res.active = a->active;
     return res;
 }

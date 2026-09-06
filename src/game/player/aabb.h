@@ -7,6 +7,7 @@ typedef struct Player Player;
 
 typedef struct {
     int16_t x, y, w, h;
+    int active;
 } AABB;
 
 int AABB_check_AABB(AABB *a, AABB *b);

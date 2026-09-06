@@ -13,11 +13,13 @@
 typedef enum {
     PLAYER_STATE_IDLE,
     PLAYER_STATE_WALK,
-    PLAYER_STATE_PUNCH
+    PLAYER_STATE_PUNCH,
+    PLAYER_STATE_HURT
 } PlayerState;
 
 typedef struct Player {
     AABB collision_box;
+    AABB punch_box;
     int16_t x, y;
     PlayerState state;
     uint64_t frames;

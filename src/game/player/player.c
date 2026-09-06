@@ -2,10 +2,12 @@
 #include "aabb.h"
 #include "global.h"
 #include "input.h"
+#include "log.h"
 #include "player_idle.h"
 #include "player_private.h"
 #include "player_punch.h"
 #include "player_walk.h"
+#include "player_hurt.h"
 #include "world.h"
 #include <stdint.h>
 
@@ -14,7 +16,8 @@
 #define DO_MAGIC                                                                 \
     X(PLAYER_STATE_IDLE, player_idle)                                            \
     X(PLAYER_STATE_WALK, player_walk)                                            \
-    X(PLAYER_STATE_PUNCH, player_punch)
+    X(PLAYER_STATE_PUNCH, player_punch)                                          \
+    X(PLAYER_STATE_HURT, player_hurt)
 
 void player_init(Player *p, int idx, int tot) {
     int16_t spacing  = (WORLD_WIDTH - PLAYER_RENDER_WIDTH) / (tot - 1);
@@ -23,12 +26,21 @@ void player_init(Player *p, int idx, int tot) {
     p->collision_box = (AABB){PLAYER_RENDER_WIDTH / 2 - PLAYER_RENDER_WIDTH / 10,
         0,
         PLAYER_RENDER_WIDTH / 6,
-        PLAYER_RENDER_HEIGHT * 2 / 3};
-    p->state         = PLAYER_STATE_IDLE;
-    p->frames        = 0;
-    p->anim_frame    = 0;
-    p->facing        = 1;
-    p->connected     = 1;
+        PLAYER_RENDER_HEIGHT * 2 / 3,
+        1};
+
+    p->punch_box = (AABB){
+        PLAYER_RENDER_WIDTH * 19 / 24 - PLAYER_RENDER_WIDTH / 15 * 2,
+        PLAYER_RENDER_HEIGHT * 15 / 32,
+        PLAYER_RENDER_WIDTH / 15 * 3,
+        PLAYER_RENDER_WIDTH / 15,
+        0};
+
+    p->state      = PLAYER_STATE_IDLE;
+    p->frames     = 0;
+    p->anim_frame = 0;
+    p->facing     = 1;
+    p->connected  = 1;
 }
 
 static void player_state_enter(Player *p, PlayerState new) {
@@ -82,6 +94,10 @@ void player_do_collisions(Player *p1, Player *p2) {
     case (STATE): PREFIX##_do_collisions(p1, p2); break;
     switch (p1->state) { DO_MAGIC }
 #undef X
+
+    AABB a = AABB_relative(&p1->collision_box, p1);
+    AABB b = AABB_relative(&p2->punch_box, p2);
+    if (AABB_check_AABB(&a, &b)) { player_state_change(p1, PLAYER_STATE_HURT); }
 
     AABB aabb = AABB_relative(&p1->collision_box, p1);
     if (aabb.x < 0) p1->x -= aabb.x;

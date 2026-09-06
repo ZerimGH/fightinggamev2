@@ -2,9 +2,13 @@
 #include "player.h"
 #include "player_private.h"
 
-void player_punch_enter(Player *p) {}
+void player_punch_enter(Player *p) {
+    p->punch_box.active = 0;
+}
 
-void player_punch_exit(Player *p) {}
+void player_punch_exit(Player *p) {
+    p->punch_box.active = 0;
+}
 
 void player_punch_apply_inputs(Player *p, Input inputs, Input linputs) {
     /*
@@ -17,6 +21,7 @@ void player_punch_apply_inputs(Player *p, Input inputs, Input linputs) {
 }
 
 void player_punch_update(Player *p) {
+    if (p->anim_frame == 1) p->punch_box.active = 1;
     if (p->anim_frame >= 3) player_state_change(p, PLAYER_STATE_IDLE);
 }
 
