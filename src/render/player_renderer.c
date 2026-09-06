@@ -9,7 +9,8 @@
 #define DO_MAGIC                                                                 \
     X(PLAYER_STATE_IDLE, player_idle, 1, 4)                                      \
     X(PLAYER_STATE_WALK, player_walk, 1, 3)                                      \
-    X(PLAYER_STATE_PUNCH, player_punch, 1, 3)
+    X(PLAYER_STATE_PUNCH, player_punch, 1, 3) \
+    X(PLAYER_STATE_HURT, player_hurt, 1, 4)
 
 #define X(UNUSED, PREFIX, UNUSED2, UNUSED3) static int PREFIX##_sprite = -1;
 DO_MAGIC
@@ -34,6 +35,24 @@ static int get_sprite(Player *p) {
     }
 }
 
+static void player_draw_hitboxes(Player *p) {
+    float sx, sy, sw, sh;
+    AABB aabb = AABB_relative(&p->collision_box, p);
+    letterbox_rect(aabb.x, aabb.y, aabb.w, aabb.h, &sx, &sy, &sw, &sh);
+    DrawRectangle((int)sx,
+        (int)sy,
+        (int)sw,
+        (int)sh,
+        (Color){255, 0, 0, 32 + 64 * aabb.active});
+    aabb = AABB_relative(&p->punch_box, p);
+    letterbox_rect(aabb.x, aabb.y, aabb.w, aabb.h, &sx, &sy, &sw, &sh);
+    DrawRectangle((int)sx,
+        (int)sy,
+        (int)sw,
+        (int)sh,
+        (Color){0, 0, 255, 32 + 64 * aabb.active});
+}
+
 void player_render(Player *p) {
     if (!p) return;
     float sx, sy, sw, sh;
@@ -48,10 +67,5 @@ void player_render(Player *p) {
     int sprite = get_sprite(p);
     Color col  = p->connected ? WHITE : (Color){150, 150, 150, 128};
     ssm_render(sprite, sx, sy, sw, sh, p->anim_frame, p->facing != 1, col);
-
-    /* 
-    AABB aabb = AABB_relative(&p->collision_box, p);
-    letterbox_rect(aabb.x, aabb.y, aabb.w, aabb.h, &sx, &sy, &sw, &sh);
-    DrawRectangle((int)sx, (int)sy, (int)sw, (int)sh, (Color){255, 0, 0, 64});
-    */
+    // player_draw_hitboxes(p);
 }
