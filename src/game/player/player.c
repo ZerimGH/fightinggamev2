@@ -100,7 +100,8 @@ void player_do_collisions(Player *p1, Player *p2) {
         AABB b = AABB_relative(&p2->punch_box, p2);
         if (AABB_check_AABB(&a, &b)) {
             player_state_change(p1, PLAYER_STATE_HURT);
-            p1->knockback_dir = p1->x <= p2->x ? -1 : 1;
+            // p1->knockback_dir = p1->x <= p2->x ? -1 : 1;
+            p1->knockback_dir = p2->facing;
         }
     }
 
